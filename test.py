@@ -1,17 +1,40 @@
 # -*- coding: utf-8 -*-
 """
+Created on Thu Aug  3 16:32:24 2023
+
+@author: home
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Jul 24 15:11:49 2023
 
 @author: hshan
 """
+"""
+# streamlit_app.py
+
+import streamlit as st
+from st_files_connection import FilesConnection
+
+# Create connection object and retrieve file contents.
+# Specify input format is a csv and to cache the result for 600 seconds.
+conn = st.experimental_connection('gcs', type=FilesConnection)
+df = conn.read("streamlit-bucket/myfile.csv", input_format="csv", ttl=600)
+
+# Print results.
+for row in df.itertuples():
+    st.write(f"{row.Owner} has a :{row.Pet}:")
+"""
 import copy
 import streamlit as st
+from st_files_connection import FilesConnection
+from google.cloud import storage
 from streamlit_option_menu import option_menu
 import PIL
 from PIL import Image
 from colorthief import ColorThief
 import webcolors
-import os
 import io
 import tempfile
 from ultralytics import YOLO
@@ -21,6 +44,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 import tensorflow as tf
 import numpy as np
 import cv2
+import h5py
+import gcsfs
 import pandas as pd
 import random
 from pathlib import Path
@@ -34,11 +59,13 @@ import tensorflow_hub as tf_hub
 from streamlit_extras.let_it_rain import rain
 from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
+
 @st.cache_data
 def load_image():
-    image = Image.open("C:/streamlit_files/title_img.png")
+    conn = st.experimental_connection('gcs', type=FilesConnection)
+    image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', output_format='PNG')
     return image
-st.image(load_image(), caption="", use_column_width=True)
+
 with st.sidebar:
     selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI'], 
         icons=['shop', 'palette','camera fill','puzzle'], menu_icon="cast", default_index=0)
@@ -46,21 +73,24 @@ with st.sidebar:
 @st.cache_data
 def load_and_resize_images():
     images = []
-    for i in range(1, 7):
-        img=Image.open(f"C:/streamlit_files/home_{i}.png")
-        images.append(img)
+    for i in range(1, 6):
+        conn = st.experimental_connection('gcs', type=FilesConnection)
+        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.png', output_format='PNG')
+        images.append(image)
     return images
 if selected == 'Home':
     st.header("Welcome to the Home page!")
     images = load_and_resize_images()
     for img in images:
         st.image(img, use_column_width=True)
-
+        
 elif selected == 'Know Thy Art':
     @st.cache_resource
     def yolo():
-        model = YOLO(r"C:\streamlit_files2\best_m.pt")
-        return model
+        fs = gcsfs.GCSFileSystem(project="csac_final_v1")
+        with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/best_m.pt", "rb") as model_file: # replace bucketname with your bucket name and best_m.pt with your model file name
+            yolo_model = YOLO(model_file) # load the model from the file object
+        return yolo_model
     model = yolo()
     with st.form(key="form"):
         source_img=st.file_uploader(label='Choose an image...', type=['png','jpg', 'jpeg'])
@@ -105,8 +135,11 @@ elif selected == 'Know Thy Art':
                             cropped_img=uncropped_img()
                         @st.cache_resource
                         def rnrs50():
-                            model=load_model(r"C:\streamlit_files2\model_resnetrs50_lion_dense10240.h5")
-                            return model
+                            fs = gcsfs.GCSFileSystem(project="csac_final_v1")
+                            with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/model_resnetrs50_lion_dense10240.h5", "rb") as model_file:
+                                model_gcs = h5py.File(model_file, "r")
+                                my_model = load_model(model_gcs)
+                            return my_model
                         m = rnrs50()
                         x = img_to_array(cropped_img)
                         x = tf.image.resize(x, [224, 224])
@@ -156,7 +189,8 @@ elif selected == 'Know Thy Art':
                             st.title('')
                             @st.cache_data
                             def styles_v4():
-                                styles_df = pd.read_csv("C:/streamlit_files/styles_v8.csv")
+                                conn = st.experimental_connection('gcs', type=FilesConnection)
+                                styles_df = conn.read("csac_final_v1/final_v1/streamlit_files/styles_v8.csv", input_format="csv", ttl=600)
                                 return styles_df
                             df = styles_v4()
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
@@ -240,44 +274,85 @@ elif selected == 'Know Thy Art':
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
                                 @st.cache_data
                                 def final_v5():
-                                    final_v5 = pd.read_csv(r"C:\streamlit_files\12_final_v5(0725).csv")
-                                    return final_v5
+                                    conn = st.experimental_connection('gcs', type=FilesConnection)
+                                    df = conn.read("csac_final_v1/final_v1/streamlit_files/12_final_v5(0803).csv", input_format="csv", ttl=600)
+                                    return df
                                 simcol_df = final_v5()
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
                                 group = selected_rows.iloc[0]['group']
                                 selected_rows = simcol_df[simcol_df['web_cg_dt'] == group]
                                 random_sample = selected_rows.sample(n=9)
                                 file_names = random_sample['file_name'].tolist()
-                            
-                                folder_paths = [r"C:\streamlit_files\abstract_expressionism_img",
-                                                        r"C:\streamlit_files\nap_img",
-                                                        r"C:\streamlit_files\symbolism_img",
-                                                        r"C:\streamlit_files\rc_img",
-                                                        r"C:\streamlit_files\cu_img",
-                                                        r"C:\streamlit_files\bq_img",
-                                                        r"C:\streamlit_files\northern_renaissance_img",
-                                                        r"C:\streamlit_files\impressionism_img",
-                                                        r"C:\streamlit_files\romanticism_img",
-                                                        r"C:\streamlit_files\sr_img",
-                                                        r"C:\streamlit_files\expressionism_img",
-                                                        r"C:\streamlit_files\realism_img"]
-                                        
-                                files = ['abstract_expressionism_', 'nap_', 'symbolism_', 'rc_', 'cu_', 'bq_', 'orthern_renaissance',
-                                                      'impressionism_', 'romanticism_', 'sr_', 'expressionism_', 'realism_']
-                                def get_style_filename(prefix, number):
-                                    idx = files.index(prefix)
-                                    folder_path = folder_paths[idx]
-                                    filename = f'{prefix}{number}.jpg'
-                                    file_path = os.path.join(folder_path, filename)
-                                    return file_path
+                                # Assuming you have the necessary GCS setup and authentication in place
+                                # You may need to install and import the appropriate GCS library, like google-cloud-storage
+                                
+                                # Replace folder_paths with the corresponding GCS paths
+                                folder_paths = [
+                                    "csac_final_v1/final_v1/streamlit_files/abstract_expressionism_img",
+                                    "csac_final_v1/final_v1/streamlit_files/nap_img",
+                                    "csac_final_v1/final_v1/streamlit_files/symbolism_img",
+                                    "csac_final_v1/final_v1/streamlit_files/rc_img",
+                                    "csac_final_v1/final_v1/streamlit_files/cu_img",
+                                    "csac_final_v1/final_v1/streamlit_files/bq_img",
+                                    "csac_final_v1/final_v1/streamlit_files/northern_renaissance_img",
+                                    "csac_final_v1/final_v1/streamlit_files/impressionism_img",
+                                    "csac_final_v1/final_v1/streamlit_files/romanticism_img",
+                                    "csac_final_v1/final_v1/streamlit_files/sr_img",
+                                    "csac_final_v1/final_v1/streamlit_files/expressionism_img",
+                                    "csac_final_v1/final_v1/streamlit_files/realism_img",
+                                ]
+                                
+                                files = [
+                                    'abstract_expressionism_',
+                                    'nap_',
+                                    'symbolism_',
+                                    'rc_',
+                                    'cu_',
+                                    'bq_',
+                                    'northern_renaissance',
+                                    'impressionism_',
+                                    'romanticism_',
+                                    'sr_',
+                                    'expressionism_',
+                                    'realism_',
+                                ]
+                                
+                                # You'll need to use the appropriate GCS library to read files from GCS
+                                                          
+                                                               
+                                # Usage example
+                                # file_path = get_style_filename('abstract_expressionism_', 1)
+                                # full_gcs_path = f'gs://{file_path}'  # Prepend 'gs://' to the GCS path
+                                # Example usage to read a file from GCS using the modified function
+                                # image_data = read_file_from_gcs(full_gcs_path)
                                 numbers = file_names
                                 plt.figure(figsize=(10, 10))
                                 for i, num in enumerate(numbers):
                                     for prefix in files:
                                         if num.startswith(prefix):
                                             number = num[len(prefix):]
+                                            @st.cache_data
+                                            def get_style_filename(prefix, number):
+                                                idx = files.index(prefix)
+                                                folder_path = folder_paths[idx]
+                                                filename = f'{prefix}{number}.jpg'
+                                                file_path = f'{folder_path}/{filename}'
+                                                return file_path
                                             file_path = get_style_filename(prefix, number)
-                                            image = imread(file_path)
+                                            full_gcs_path = f'gs://{file_path}'
+                                            @st.cache_data
+                                            def read_file_from_gcs(file_path):
+                                                # Create a GCS client (you may need to configure it with credentials)
+                                                client = storage.Client()
+                                            
+                                                # Get the GCS bucket and blob from the file_path
+                                                bucket_name, blob_name = file_path.split('/', 1)
+                                                bucket = client.get_bucket(bucket_name)
+                                                blob = bucket.blob(blob_name)
+                                            
+                                                # Read the file (you can modify this to handle different output formats)
+                                                return blob.download_as_string()
+                                            image = read_file_from_gcs(full_gcs_path)
                                         
                                             plt.subplot(3, 3, i + 1)
                                             plt.imshow(image)
@@ -301,7 +376,10 @@ elif selected == 'Know Thy Art':
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
                                 @st.cache_resource
                                 def vgg_model():
-                                    model=load_model("C:/streamlit_files2/vgg16.h5")
+                                    fs = gcsfs.GCSFileSystem(project="csac_final_v1")
+                                    with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/vgg16.h5", "rb") as model_file:
+                                        model_gcs = h5py.File(model_file, "r")
+                                        model = load_model(model_gcs)
                                     return model
                                 m = vgg_model()
                                 x = img_to_array(cropped_img)
@@ -309,11 +387,10 @@ elif selected == 'Know Thy Art':
                                 x = tf.image.resize(x, [224, 224])
                                 x = np.array([x])
                                 predict = m.predict(pinp(x))
-                                @st.cache_data
-                                def total_db():
-                                    file = open("C:/streamlit_files2/total.txt","rb")
-                                    total_df = pickle.load(file)
-                                    file.close()
+                                @st.cache_data 
+                                def total_db(): 
+                                    conn = st.experimental_connection('gcs', type=FilesConnection) 
+                                    total_df = conn.read('csac_final_v1/final_v1/streamlit_files/total.txt', input_format='pickle', ttl=600) 
                                     return total_df
                                 total=total_db()
                                 index_predict = total['predict']                            
@@ -323,11 +400,16 @@ elif selected == 'Know Thy Art':
                                 x = np.array(similarities).reshape(-1,)                                            
                                 # 가장 유사한 이미지 9개
                                 top_9 = total.iloc[np.argsort(x)[::-1][:9]].reset_index(drop=True)                                            
-                                top_9['url'] = top_9['url'].apply(lambda x: 'C:/streamlit_files3/paintings/' + x)                                    
+                                top_9['url'] = top_9['url'].apply(lambda x: 'csac_final_v1/final_v1/streamlit_files3/paintings' + x)                                    
                                 plt.figure(figsize=(10, 10))
                                 i = 1                                    
                                 for idx, url in enumerate(top_9['url']):
-                                    image = imread(url)
+                                    @st.cache_data
+                                    def top_9_image(url):
+                                        conn = st.experimental_connection('gcs', type=FilesConnection)
+                                        image = conn.read(url, output_format='JPG')
+                                        return image
+                                    image = top_9_image(url)
                                     plt.subplot(3, 3, i)
                                     plt.imshow(image)
                                     plt.axis('off')
@@ -369,20 +451,20 @@ elif selected=='Neural Style Transfer':
                          use_column_width=True)    
     st.header('')
     button=None
-    def load_image(image_file, image_size=(512, 256)):
-        content = image_file.read()
-        img = tf.io.decode_image(content, channels=3, dtype=tf.float32)[tf.newaxis, ...]
-        img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
-        return img
     if original_image and style_image :
         col1,col2,col3,col4,col5 = st.columns(5)
         with col3 : 
             button = st.button('Stylize Image')
             if button :
                 with st.spinner('Running...') :
-                    
-                    original_image = load_image(original_image)
-                    style_image = load_image(style_image)
+                    @st.cache_data
+                    def nst_image(image_file, image_size=(512, 256)):
+                        content = image_file.read()
+                        img = tf.io.decode_image(content, channels=3, dtype=tf.float32)[tf.newaxis, ...]
+                        img = tf.image.resize(img, image_size, preserve_aspect_ratio=True)
+                        return img
+                    original_image = nst_image(original_image)
+                    style_image = nst_image(style_image)
                     
                     style_image = tf.nn.avg_pool(style_image, ksize=[3,3], strides=[1,1], padding='VALID')
                     @st.cache_resource
@@ -471,15 +553,21 @@ elif selected=='Artwork MBTI':
             st.subheader(mbti_short + ' 입니까:question:')
             st.write(mbti_exp_info)
     
+    
+    @st.cache_data
     def main():
         st.title("Mini Game - 미술사조 mbti test :heart:")
-        image_folder = "C:/streamlit_files/new_folder/"  # 이미지 폴더 경로
+        image_folder = "csac_final_v1/final_v1/streamlit_files/new_folder/"  # GCS 이미지 폴더 경로    
         image_names = [f"img_{i}.jpg" for i in range(1, 13)]  # 이미지 파일명 리스트
-    
-        images = [Image.open(image_folder + name) for name in image_names]
-    
-        mbti_data = pd.read_csv(r"C:\streamlit_files\style_mbti_v2.csv")
-    
+        @st.cache_data
+        def game_image(image_path):
+            conn = st.experimental_connection('gcs', type=FilesConnection)
+            image = conn.read(image_path, output_format='jpg')
+            return image
+        images = [game_image(image_folder + name) for name in image_names]
+        conn = st.experimental_connection('gcs', type=FilesConnection)
+        mbti_data = conn.read("csac_final_v1/final_v1/streamlit_files/style_mbti_v2.csv", input_format="csv", ttl=600)
+        
         sequential_matchup_game(images, image_folder, mbti_data)
     
     if __name__ == "__main__":
