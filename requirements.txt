@@ -3,3 +3,4 @@ gcsfs==2023.6.0
 streamlit-option-menu==0.3.6
 # Direct pypi install coming soon
 git+https://github.com/streamlit/files-connection
+colorthief==0.2.1
