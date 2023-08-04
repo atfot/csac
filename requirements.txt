@@ -5,7 +5,7 @@ git+https://github.com/streamlit/files-connection
 colorthief==0.2.1
 matplotlib==3.7.1
 numpy==1.24.3
-opencv_python-headless==4.8.0.74
+opencv-python-headless==4.8.0.74
 pandas==1.5.3
 Pillow==9.4.0
 protobuf==4.23.4
