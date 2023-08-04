@@ -17,6 +17,6 @@ streamlit_extras==0.3.0
 streamlit_option_menu==0.3.6
 tensorflow==2.13.0
 tensorflow_hub==0.14.0
-tensorflow_intel==2.13.0
+#tensorflow_intel==2.13.0
 ultralytics==8.0.145
 webcolors==1.13
