@@ -2,18 +2,18 @@
 """
 Created on Thu Aug  3 16:32:24 2023
 
-@author: home
+@author: ITWILL
 """
 import copy
 import streamlit as st
 from st_files_connection import FilesConnection
-from google.cloud import storage
 from streamlit_option_menu import option_menu
 import PIL
 from PIL import Image
 from colorthief import ColorThief
 import webcolors
 import io
+import torch
 import tempfile
 from ultralytics import YOLO
 from tensorflow.keras.applications.resnet_rs import preprocess_input
@@ -22,7 +22,6 @@ from tensorflow.keras.preprocessing.image import img_to_array
 import tensorflow as tf
 import numpy as np
 import cv2
-import h5py
 import gcsfs
 import pandas as pd
 import random
@@ -41,7 +40,7 @@ st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layo
 @st.cache_data
 def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
-    image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', output_format='PNG')
+    image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='PNG')
     return image
 
 with st.sidebar:
@@ -53,7 +52,7 @@ def load_and_resize_images():
     images = []
     for i in range(1, 6):
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.png', output_format='PNG')
+        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='JPG')
         images.append(image)
     return images
 if selected == 'Home':
@@ -65,10 +64,10 @@ if selected == 'Home':
 elif selected == 'Know Thy Art':
     @st.cache_resource
     def yolo():
-        fs = gcsfs.GCSFileSystem(project="csac_final_v1")
-        with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/best_m.pt", "rb") as model_file: # replace bucketname with your bucket name and best_m.pt with your model file name
-            yolo_model = YOLO(model_file) # load the model from the file object
-        return yolo_model
+        conn = st.experimental_connection('git-lfs', type=FilesConnection)
+        model = conn.read('best_m.pt',input_format='pt')
+        result = torch.load(model)
+        return result
     model = yolo()
     with st.form(key="form"):
         source_img=st.file_uploader(label='Choose an image...', type=['png','jpg', 'jpeg'])
@@ -113,11 +112,10 @@ elif selected == 'Know Thy Art':
                             cropped_img=uncropped_img()
                         @st.cache_resource
                         def rnrs50():
-                            fs = gcsfs.GCSFileSystem(project="csac_final_v1")
-                            with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/model_resnetrs50_lion_dense10240.h5", "rb") as model_file:
-                                model_gcs = h5py.File(model_file, "r")
-                                my_model = load_model(model_gcs)
-                            return my_model
+                            conn = st.experimental_connection('git-lfs', type=FilesConnection)
+                            model = conn.read('model_resnetrs50_lion_dense10240.h5',input_format='hdf5')
+                            result = load_model(model)
+                            return result
                         m = rnrs50()
                         x = img_to_array(cropped_img)
                         x = tf.image.resize(x, [224, 224])
@@ -168,7 +166,7 @@ elif selected == 'Know Thy Art':
                             @st.cache_data
                             def styles_v4():
                                 conn = st.experimental_connection('gcs', type=FilesConnection)
-                                styles_df = conn.read("csac_final_v1/final_v1/streamlit_files/styles_v8.csv", input_format="csv", ttl=600)
+                                styles_df = conn.read("csac_final_v1/final_v1/streamlit_files/styles_v8.csv", input_format="csv")
                                 return styles_df
                             df = styles_v4()
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
@@ -253,7 +251,7 @@ elif selected == 'Know Thy Art':
                                 @st.cache_data
                                 def final_v5():
                                     conn = st.experimental_connection('gcs', type=FilesConnection)
-                                    df = conn.read("csac_final_v1/final_v1/streamlit_files/12_final_v5(0803).csv", input_format="csv", ttl=600)
+                                    df = conn.read("csac_final_v1/final_v1/streamlit_files/12_final_v5(0806).csv", input_format="csv")
                                     return df
                                 simcol_df = final_v5()
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
@@ -295,14 +293,6 @@ elif selected == 'Know Thy Art':
                                     'realism_',
                                 ]
                                 
-                                # You'll need to use the appropriate GCS library to read files from GCS
-                                                          
-                                                               
-                                # Usage example
-                                # file_path = get_style_filename('abstract_expressionism_', 1)
-                                # full_gcs_path = f'gs://{file_path}'  # Prepend 'gs://' to the GCS path
-                                # Example usage to read a file from GCS using the modified function
-                                # image_data = read_file_from_gcs(full_gcs_path)
                                 numbers = file_names
                                 plt.figure(figsize=(10, 10))
                                 for i, num in enumerate(numbers):
@@ -317,21 +307,13 @@ elif selected == 'Know Thy Art':
                                                 file_path = f'{folder_path}/{filename}'
                                                 return file_path
                                             file_path = get_style_filename(prefix, number)
-                                            full_gcs_path = f'gs://{file_path}'
                                             @st.cache_data
-                                            def read_file_from_gcs(file_path):
-                                                # Create a GCS client (you may need to configure it with credentials)
-                                                client = storage.Client()
-                                            
-                                                # Get the GCS bucket and blob from the file_path
-                                                bucket_name, blob_name = file_path.split('/', 1)
-                                                bucket = client.get_bucket(bucket_name)
-                                                blob = bucket.blob(blob_name)
-                                            
-                                                # Read the file (you can modify this to handle different output formats)
-                                                return blob.download_as_string()
-                                            image = read_file_from_gcs(full_gcs_path)
-                                        
+                                            def simcol_image(file_path):
+                                                conn = st.experimental_connection('gcs', type=FilesConnection)
+                                                image = conn.read(file_path)
+                                                result=imread(image)
+                                                return result
+                                            image=simcol_image(file_path)
                                             plt.subplot(3, 3, i + 1)
                                             plt.imshow(image)
                                             plt.axis('off')
@@ -354,11 +336,10 @@ elif selected == 'Know Thy Art':
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
                                 @st.cache_resource
                                 def vgg_model():
-                                    fs = gcsfs.GCSFileSystem(project="csac_final_v1")
-                                    with fs.open("gs://csac_final_v1/final_v1/streamlit_files2/vgg16.h5", "rb") as model_file:
-                                        model_gcs = h5py.File(model_file, "r")
-                                        model = load_model(model_gcs)
-                                    return model
+                                    conn = st.experimental_connection('git-lfs', type=FilesConnection)
+                                    model = conn.read('vgg16.h5',input_format='hdf5')
+                                    result = load_model(model)
+                                    return result
                                 m = vgg_model()
                                 x = img_to_array(cropped_img)
                                 #x.shape
@@ -368,7 +349,7 @@ elif selected == 'Know Thy Art':
                                 @st.cache_data 
                                 def total_db(): 
                                     conn = st.experimental_connection('gcs', type=FilesConnection) 
-                                    total_df = conn.read('csac_final_v1/final_v1/streamlit_files/total.txt', input_format='pickle', ttl=600) 
+                                    total_df = conn.read('csac_final_v1/final_v1/streamlit_files/total.txt', input_format='pickle') 
                                     return total_df
                                 total=total_db()
                                 index_predict = total['predict']                            
@@ -385,7 +366,7 @@ elif selected == 'Know Thy Art':
                                     @st.cache_data
                                     def top_9_image(url):
                                         conn = st.experimental_connection('gcs', type=FilesConnection)
-                                        image = conn.read(url, output_format='JPG')
+                                        image = conn.read(url, input_format='JPG')
                                         return image
                                     image = top_9_image(url)
                                     plt.subplot(3, 3, i)
@@ -540,11 +521,11 @@ elif selected=='Artwork MBTI':
         @st.cache_data
         def game_image(image_path):
             conn = st.experimental_connection('gcs', type=FilesConnection)
-            image = conn.read(image_path, output_format='jpg')
+            image = conn.read(image_path, input_format='jpg')
             return image
         images = [game_image(image_folder + name) for name in image_names]
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        mbti_data = conn.read("csac_final_v1/final_v1/streamlit_files/style_mbti_v2.csv", input_format="csv", ttl=600)
+        mbti_data = conn.read("csac_final_v1/final_v1/streamlit_files/style_mbti_v2.csv", input_format="csv")
         
         sequential_matchup_game(images, image_folder, mbti_data)
     
