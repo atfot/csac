@@ -219,7 +219,7 @@ numpy @ file:///C:/Users/dev-admin/mkl/numpy_and_numpy_base_1682982345978/work
 numpydoc @ file:///C:/ci_311/numpydoc_1676453412027/work
 oauthlib==3.2.2
 onnx==1.14.0
-opencv-python==4.8.0.74
+opencv-python-headless==4.8.0.74
 openpyxl==3.0.10
 opt-einsum==3.3.0
 packaging @ file:///C:/b/abs_ed_kb9w6g4/croot/packaging_1678965418855/work
