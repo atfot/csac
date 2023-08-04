@@ -18,8 +18,8 @@ tensorflow-hub==0.14.0
 streamlit-extras==0.2.7
 google-cloud==0.34.0
 #io
-tempfile
-cv2
-random
-textwrap
-pickle
+#tempfile
+#cv2
+#random
+#textwrap
+#pickle
