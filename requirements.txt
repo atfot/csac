@@ -4,7 +4,7 @@ streamlit-option-menu==0.3.6
 # Direct pypi install coming soon
 git+https://github.com/streamlit/files-connection
 colorthief==0.2.1
-pillow==9.4.0
+Pillow==9.4.0
 webcolors==1.13
 ultralytics==8.0.145
 tensorflow==2.13.0
