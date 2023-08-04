@@ -3,7 +3,6 @@ gcsfs==2023.6.0
 # Direct pypi install coming soon
 git+https://github.com/streamlit/files-connection
 colorthief==0.2.1
-h5py==3.7.0
 matplotlib==3.7.1
 numpy==1.24.3
 opencv_python==4.8.0.74
