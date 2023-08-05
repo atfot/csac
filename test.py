@@ -4,9 +4,10 @@ Created on Thu Aug  3 16:32:24 2023
 
 @author: ITWILL
 """
-st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
+
 import copy
 import streamlit as st
+st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 from st_files_connection import FilesConnection
 from streamlit_option_menu import option_menu
 import PIL
