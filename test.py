@@ -4,6 +4,7 @@ Created on Thu Aug  3 16:32:24 2023
 
 @author: ITWILL
 """
+st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 import copy
 import streamlit as st
 from st_files_connection import FilesConnection
@@ -35,7 +36,7 @@ from matplotlib import gridspec
 import tensorflow_hub as tf_hub
 from streamlit_extras.let_it_rain import rain
 from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
-st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
+
 
 @st.cache_data
 def load_image():
