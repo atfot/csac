@@ -49,7 +49,7 @@ with st.sidebar:
     selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI'], 
         icons=['shop', 'palette','camera fill','puzzle'], menu_icon="cast", default_index=0)
     
-def load_and_resize_images(path):
+def load_and_resize_images():
     images = []
     for i in range(1, 6):
         conn = st.experimental_connection('gcs', type=FilesConnection)
