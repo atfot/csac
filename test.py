@@ -38,8 +38,6 @@ import tensorflow_hub as tf_hub
 from streamlit_extras.let_it_rain import rain
 from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 
-
-@st.cache_data
 def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
     image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='PNG')
