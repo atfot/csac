@@ -53,12 +53,12 @@ def load_and_resize_images(path):
     images = []
     for i in range(1, 6):
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        image = conn.read(path, input_format='JPG')
+        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='JPG')
         images.append(image)
     return images
 if selected == 'Home':
     st.header("Welcome to the Home page!")
-    images = load_and_resize_images(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg')
+    images = load_and_resize_images()
     for img in images:
         st.image(img, use_column_width=True)
         
