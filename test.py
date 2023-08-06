@@ -48,18 +48,17 @@ def load_image():
 with st.sidebar:
     selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI'], 
         icons=['shop', 'palette','camera fill','puzzle'], menu_icon="cast", default_index=0)
-
-@st.cache_data
-def load_and_resize_images():
+    
+def load_and_resize_images(path):
     images = []
     for i in range(1, 6):
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='JPG')
+        image = conn.read(path, input_format='JPG')
         images.append(image)
     return images
 if selected == 'Home':
     st.header("Welcome to the Home page!")
-    images = load_and_resize_images()
+    images = load_and_resize_images(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg')
     for img in images:
         st.image(img, use_column_width=True)
         
