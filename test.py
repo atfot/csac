@@ -85,7 +85,7 @@ elif selected == 'Know Thy Art':
                             cords = box.xyxy[0].tolist()
                             cords = [round(x) for x in cords]
                             area = tuple(cords)
-                            @st.cache_data
+                            
                             def load_and_crop_image(source_img, area):
                                 lc_img = uploaded_image.crop(area)
                                 lc_img=copy.deepcopy(lc_img)
@@ -105,7 +105,7 @@ elif selected == 'Know Thy Art':
                                      caption='''Uploaded Image
                                      (Clean as whistle!)''',
                                      use_column_width=True)  
-                            @st.cache_data
+                            
                             def uncropped_img():
                                 uc_img=copy.deepcopy(uploaded_image)
                                 return uc_img
@@ -163,7 +163,7 @@ elif selected == 'Know Thy Art':
                             st.markdown(f"<h2 style='text-align: center; color: #161953;'>{korean_class_indices[top_prediction_index]}<br></h2>", unsafe_allow_html=True)
                             st.markdown("<h3 style='text-align: center; color: black;'>와 가장 비슷합니다.<br></h3>", unsafe_allow_html=True)
                             st.title('')
-                            @st.cache_data
+                            
                             def styles_v4():
                                 conn = st.experimental_connection('gcs', type=FilesConnection)
                                 styles_df = conn.read("csac_final_v1/final_v1/streamlit_files/styles_v8.csv", input_format="csv")
@@ -248,7 +248,7 @@ elif selected == 'Know Thy Art':
                                                        'silver', 'gray', 'darkgray', 'lightgray', 'gainsboro', 'lightslategray', 'slategray', 'whitesmoke', 'palevioletred', 'black']
                                         
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
-                                @st.cache_data
+                                
                                 def final_v5():
                                     conn = st.experimental_connection('gcs', type=FilesConnection)
                                     df = conn.read("csac_final_v1/final_v1/streamlit_files/12_final_v5(0806).csv", input_format="csv")
@@ -346,7 +346,7 @@ elif selected == 'Know Thy Art':
                                 x = tf.image.resize(x, [224, 224])
                                 x = np.array([x])
                                 predict = m.predict(pinp(x))
-                                @st.cache_data 
+                                
                                 def total_db(): 
                                     conn = st.experimental_connection('gcs', type=FilesConnection) 
                                     total_df = conn.read('csac_final_v1/final_v1/streamlit_files/total.txt', input_format='pickle') 
@@ -363,7 +363,7 @@ elif selected == 'Know Thy Art':
                                 plt.figure(figsize=(10, 10))
                                 i = 1                                    
                                 for idx, url in enumerate(top_9['url']):
-                                    @st.cache_data
+                                    
                                     def top_9_image(url):
                                         conn = st.experimental_connection('gcs', type=FilesConnection)
                                         image = conn.read(url, input_format='JPG')
@@ -518,7 +518,7 @@ elif selected=='Artwork MBTI':
         st.title("Mini Game - 미술사조 mbti test :heart:")
         image_folder = "csac_final_v1/final_v1/streamlit_files/new_folder/"  # GCS 이미지 폴더 경로    
         image_names = [f"img_{i}.jpg" for i in range(1, 13)]  # 이미지 파일명 리스트
-        @st.cache_data
+        
         def game_image(image_path):
             conn = st.experimental_connection('gcs', type=FilesConnection)
             image = conn.read(image_path, input_format='jpg')
