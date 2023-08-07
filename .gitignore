@@ -161,7 +161,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-[csac_secrets]
+[connections.gcs]
 type = "service_account"
 project_id = "phrasal-indexer-393802"
 private_key_id = "7498686d3628b82848332ae0114e027d10838618"
