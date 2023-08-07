@@ -43,7 +43,7 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 
 def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
-    image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='PNG')
+    image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='png')
     return image
 st.image(load_image(), caption="", use_column_width=True)
 
@@ -55,7 +55,7 @@ def load_and_resize_images():
     images = []
     for i in range(1, 6):
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='JPG')
+        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='jpg')
         images.append(image)
     return images
 if selected == 'Home':
@@ -369,7 +369,7 @@ elif selected == 'Know Thy Art':
                                     
                                     def top_9_image(url):
                                         conn = st.experimental_connection('gcs', type=FilesConnection)
-                                        image = conn.read(url, input_format='JPG')
+                                        image = conn.read(url, input_format='jpg')
                                         return image
                                     image = top_9_image(url)
                                     plt.subplot(3, 3, i)
