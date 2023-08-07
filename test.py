@@ -40,8 +40,7 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 from google.oauth2 import service_account
 from google.cloud import storage
 
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["connections.gcs"]
+credentials = service_account.Credentials.from_service_account_info(st.secrets["connections.gcs"])
 
 client = storage.DocumentProcessorServiceClient(credentials=credentials)
 
