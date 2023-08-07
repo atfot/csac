@@ -40,11 +40,6 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 from google.oauth2 import service_account
 from google.cloud import storage
 
-# Create API client.
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["csac_secrets"]["private_key"]
-)
-client = storage.Client(credentials=credentials)
 
 def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
