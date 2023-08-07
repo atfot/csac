@@ -42,10 +42,9 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 
 
 def load_image():
-    conn = st.experimental_connection('gcs', type=FilesConnection)
     #image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='png')
-    image = Image.open('csac_final_v1/final_v1/streamlit_files/title_img.png')
-    return image
+    htp7='https://storage.googleapis.com/csac_final_v1/final_v1/streamlit_files/title_img.png'
+    return htp7
 st.image(load_image(), caption="", use_column_width=True)
 
 with st.sidebar:
