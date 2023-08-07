@@ -44,7 +44,7 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
     #image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='png')
-    image = Image.open('https://storage.googleapis.com/csac_final_v1/final_v1/streamlit_files/title_img.png')
+    image = Image.open('https://storage.cloud.google.com/csac_final_v1/final_v1/streamlit_files/title_img.png')
     return image
 st.image(load_image(), caption="", use_column_width=True)
 
