@@ -37,8 +37,8 @@ from matplotlib import gridspec
 import tensorflow_hub as tf_hub
 from streamlit_extras.let_it_rain import rain
 from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
-from google.oauth2 import service_account
-from google.cloud import storage
+#from google.oauth2 import service_account
+#from google.cloud import storage
 
 
 def load_image():
