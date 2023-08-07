@@ -42,6 +42,7 @@ def load_image():
     conn = st.experimental_connection('gcs', type=FilesConnection)
     image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='PNG')
     return image
+st.image(load_image(), caption="", use_column_width=True)
 
 with st.sidebar:
     selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI'], 
