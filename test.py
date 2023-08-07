@@ -43,7 +43,7 @@ from google.cloud import storage
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["connections.gcs"]
 
-client = documentai.DocumentProcessorServiceClient(credentials=credentials)
+client = storage.DocumentProcessorServiceClient(credentials=credentials)
 
 def load_image():
     #image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='png')
