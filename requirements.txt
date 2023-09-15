@@ -43,3 +43,4 @@ random
 textwrap
 pickle
 re
+streamlit-audiorec
