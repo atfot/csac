@@ -46,7 +46,7 @@ from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 
 def load_image():
     #image = conn.read('csac_final_v1/final_v1/streamlit_files/title_img.png', input_format='png')
-    htp7='https://storage.googleapis.com/csac_final_v1/final_v1/streamlit_files/title_img.png'
+    htp7='https://storage.googleapis.com/csac_final_v1/final_v1/streamlit_files/title.jpg'
     return htp7
 st.image(load_image(), caption="", use_column_width=True)
 
@@ -57,8 +57,7 @@ with st.sidebar:
 def load_and_resize_images():
     images = []
     for i in range(1, 6):
-        conn = st.experimental_connection('gcs', type=FilesConnection)
-        image = conn.read(f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg', input_format='jpg')
+        image = f'https://storage.googleapis.com/csac_final_v1/final_v1/streamlit_files/home_{i}.jpg'
         images.append(image)
     return images
 if selected == 'Home':
