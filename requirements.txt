@@ -21,7 +21,7 @@ pandas==1.5.3
 pathlib==1.0.1
 matplotlib==3.7.1
 scikit-learn==1.2.2
-streamlit-extras==0.2.7
+#streamlit-extras==0.2.7
 speechrecognition==3.10.0
 deepl==1.15.0
 openai==0.27.9
