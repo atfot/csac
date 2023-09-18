@@ -38,7 +38,7 @@ beautifulsoup4==4.12.2
 tenacity==8.2.2
 #os
 #tempfile
-cv2
+#cv2
 #random
 #textwrap
 #pickle
