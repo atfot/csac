@@ -30,8 +30,7 @@ from streamlit_extras.let_it_rain import rain
 from tensorflow.keras.applications.vgg16 import preprocess_input as pinp
 from io import BytesIO
 import streamlit.components.v1 as components
-from st_custom_components import st_audiorec
-from st_custom_components1 import st_audiorec1
+from st_audiorec import st_audiorec
 import speech_recognition as SR
 import deepl 
 import openai
@@ -742,7 +741,7 @@ if selected == 'Speech to Art to Speech':
 
         st.markdown("""---""")
         
-        wav_audio_data = st_audiorec1()
+        wav_audio_data = st_audiorec()
         
         if wav_audio_data or st.session_state.load_state_2:
             st.session_state.load_state_2 = True
