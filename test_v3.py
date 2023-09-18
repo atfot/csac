@@ -93,7 +93,7 @@ if selected == 'Home':
 
 
 elif selected == 'Know Thy Art':
-    @st.cache_resource
+    #@st.cache_resource
     def yolo():
         conn = st.experimental_connection('gcs', type=FilesConnection)
         temp=conn.open("gs://csac_final_v2/new/best_m.pt", mode="rb")
