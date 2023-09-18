@@ -94,17 +94,15 @@ if selected == 'Home':
 
 elif selected == 'Know Thy Art':
     #@st.cache_resource
-    def download_blob_as_bytes(bucket_name, source_blob_name):
+    def YOLO():
         storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(source_blob_name)
-        blob_data = blob.download_as_bytes()
-        return blob_data
-    bucket_name = st.secrets['my_bucket']
-    source_blob_name = st.secrets['bucket_path']+'best_m.pt'
-    blob_data = download_blob_as_bytes(bucket_name, source_blob_name)
-    buffer = io.BytesIO(blob_data)
-    model = torch.jit.load(buffer)
+        bucket = storage_client.bucket(st.secrets['my_bucket'])
+        blob = bucket.blob(st.secrets['bucket_path']+'best_m.pt')
+        blob_data = blob.download_as_bytes(st.secrets['my_bucket'],st.secrets['bucket_path']+'best_m.pt')
+        buffer = io.BytesIO(blob_data)
+        result = torch.jit.load(buffer)
+        return result
+    model = YOLO()
 
     with st.form(key="form"):
         source_img=st.file_uploader(label='Choose an image...', type=['png','jpg', 'jpeg'])
