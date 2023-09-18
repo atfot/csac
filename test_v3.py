@@ -68,7 +68,7 @@ from tenacity import (
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 
 def load_image():
-    image = Image.open("https://storage.googleapis.com/csac_final_v2/new/title.jpg")
+    image = "https://storage.googleapis.com/csac_final_v2/new/title.jpg"
     return image
 st.image(load_image(), caption="", use_column_width=True)
 
@@ -81,7 +81,7 @@ with st.sidebar:
 def load_and_resize_images():
     images = []
     for i in range(1, 6):
-        img=Image.open(f"https://storage.googleapis.com/csac_final_v2/new/home_{i}.jpg")
+        img=f"https://storage.googleapis.com/csac_final_v2/new/home_{i}.jpg"
         images.append(img)
     return images
 
