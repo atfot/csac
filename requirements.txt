@@ -34,7 +34,7 @@ urllib3==1.26.16
 selenium==4.11.2
 webdriver-manager==4.0.0
 beautifulsoup4==4.12.2
-sqlite
+sqlite3
 tenacity==8.2.2
 os
 tempfile
