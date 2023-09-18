@@ -41,8 +41,7 @@ from google.oauth2 import service_account
 from google.cloud import storage
 
 def load_image():
-    conn = st.experimental_connection('gcs', type=FilesConnection)
-    image = conn.read('csac_final_v1/final_v1/streamlit_files/title.jpg', input_format='jpg')
+    image = 'https://storage.googleapis.com/csac_final_v2/new/title.jpg'
     return image
 st.image(load_image(), caption="", use_column_width=True)
 
@@ -53,7 +52,7 @@ with st.sidebar:
 def load_and_resize_images():
     images = []
     for i in range(1, 6):
-        image = f'csac_final_v1/final_v1/streamlit_files/home_{i}.jpg'
+        image = f'https://storage.googleapis.com/csac_final_v2/new/home_{i}.jpg'
         images.append(image)
     return images
 if selected == 'Home':
