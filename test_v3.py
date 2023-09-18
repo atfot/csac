@@ -6,6 +6,7 @@ import PIL
 from PIL import Image
 from colorthief import ColorThief
 import webcolors
+from google.cloud import storage
 import os
 import io
 import tempfile
@@ -67,13 +68,11 @@ from tenacity import (
     wait_random_exponential,
 )
 
-
-
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 
 @st.cache_data
 def load_image():
-    image = Image.open("C:/streamlit_files/title.jpg")
+    image = Image.open("https://storage.googleapis.com/csac_final_v2/new/title.jpg")
     return image
 st.image(load_image(), caption="", use_column_width=True)
 
@@ -87,7 +86,7 @@ with st.sidebar:
 def load_and_resize_images():
     images = []
     for i in range(1, 6):
-        img=Image.open(f"C:/streamlit_files/home_{i}.jpg")
+        img=Image.open(f"https://storage.googleapis.com/csac_final_v2/new/home_{i}.jpg")
         images.append(img)
     return images
 
@@ -101,7 +100,9 @@ if selected == 'Home':
 elif selected == 'Know Thy Art':
     @st.cache_resource
     def yolo():
-        model = YOLO(r"C:\streamlit_files2\best_m.pt")
+        conn = st.experimental_connection('gcs', type=FilesConnection)
+        temp=conn.open("gs://csac_final_v2/new/best_m.pt", mode="rb")
+        model = YOLO(temp)
         return model
     model = yolo()
     with st.form(key="form"):
@@ -147,7 +148,8 @@ elif selected == 'Know Thy Art':
                             cropped_img=uncropped_img()
                         @st.cache_resource
                         def rnrs50():
-                            model=load_model(r"C:\streamlit_files2\model_resnetrs50_lion_dense10240.h5")
+                            conn = st.experimental_connection('gcs', type=FilesConnection)
+                            model=conn.open("gs://csac_final_v2/new/model_resnetrs50_lion_dense10240.h5", mode="rb")
                             return model
                         m = rnrs50()
                         x = img_to_array(cropped_img)
@@ -199,31 +201,24 @@ elif selected == 'Know Thy Art':
                             
                             sajo = korean_class_indices[top_prediction_index]
                             
-                            try:
-                                client_id = "l9maed2fj4"
-                                client_secret = "A6g38ZJkOwQiV5c4hj3ycZyzjEg9QtavPnqoCaFX"
-                                encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다.")
-                                data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
-                                url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
-                                request = urllib.request.Request(url)
-                                request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
-                                request.add_header("X-NCP-APIGW-API-KEY",client_secret)
-                                response = urllib.request.urlopen(request, data=data.encode('utf-8'))
-                                rescode = response.getcode()
-                                if(rescode==200):
-                                    print("TTS mp3 저장")
-                                    response_body = response.read()
-                                    with open('1111.mp3', 'wb') as f:
-                                        f.write(response_body)
-                                    playsound('C:/streamlit/1111.mp3')
-                                else:
-                                    print("Error Code:" + rescode)
-                            finally:
-                                os.remove('C:/streamlit/1111.mp3')
+                            
+                            encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다.")
+                            data = st.secrets['clova_data'] + encText;
+                            request = urllib.request.Request(st.secrets['clova_url'])
+                            request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
+                            request.add_header("X-NCP-APIGW-API-KEY",st.secrets['clova_secret'])
+                            response = urllib.request.urlopen(request, data=data.encode('utf-8'))
+                            rescode = response.getcode()
+                            if(rescode==200):
+                                with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                                    temp.write(response_body)
+                                    temp.seek(0)
+                                    playsound(temp.name)
                                     
                             @st.cache_data
                             def styles_v4():
-                                styles_df = pd.read_csv("C:/streamlit_files/styles_v9.csv")
+                                conn = st.experimental_connection('gcs', type=FilesConnection)
+                                styles_df=conn.read("gs://csac_final_v2/new/styles_v9.csv", input_format='csv')
                                 return styles_df
                             
                             df = styles_v4()
@@ -234,28 +229,19 @@ elif selected == 'Know Thy Art':
                             col1, col2 = st.columns([1, 6])
                             if len(matching_apps) > 0:
                                 for app in matching_apps:
-                                    col2.markdown(app,unsafe_allow_html=True)
-                                
-                                try:
-                                    encText = urllib.parse.quote(matching_exps)
-                                    data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
-                                    url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
-                                    request = urllib.request.Request(url)
-                                    request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
-                                    request.add_header("X-NCP-APIGW-API-KEY",client_secret)
-                                    response = urllib.request.urlopen(request, data=data.encode('utf-8'))
-                                    rescode = response.getcode()
-                                    if(rescode==200):
-                                        print("TTS mp3 저장")
-                                        response_body = response.read()
-                                        with open('1112.mp3', 'wb') as f:
-                                            f.write(response_body)
-                                        playsound('C:/streamlit/1112.mp3')
-                                    else:
-                                        print("Error Code:" + rescode)
-                                finally:
-                                     os.remove('C:/streamlit/1112.mp3')
-                            
+                                    col2.markdown(app,unsafe_allow_html=True)                                
+                                encText = urllib.parse.quote(matching_exps)
+                                data = st.secrets['clova_data'] + encText;
+                                request = urllib.request.Request(st.secrets['clova_url'])
+                                request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
+                                request.add_header("X-NCP-APIGW-API-KEY",st.secrets['clova_secret'])
+                                response = urllib.request.urlopen(request, data=data.encode('utf-8'))
+                                rescode = response.getcode()
+                                if(rescode==200):
+                                    with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                                        temp.write(response_body)
+                                        temp.seek(0)
+                                        playsound(temp.name)                            
                             else:
                                 st.subheader("No related apps found for the predicted art style.")
                                 
@@ -332,7 +318,8 @@ elif selected == 'Know Thy Art':
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
                                 @st.cache_data
                                 def final_v5():
-                                    final_v5 = pd.read_csv(r"C:\streamlit_files\12_final_v5(0806).csv")
+                                    conn = st.experimental_connection('gcs', type=FilesConnection)
+                                    final_v5=conn.read("gs://csac_final_v2/new/12_final_v5(0806).csv", input_format='csv')
                                     return final_v5
                                 simcol_df = final_v5()
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
@@ -341,18 +328,18 @@ elif selected == 'Know Thy Art':
                                 random_sample = selected_rows.sample(n=9)
                                 file_names = random_sample['file_name'].tolist()
                             
-                                folder_paths = [r"C:\streamlit_files\abstract_expressionism_img",
-                                                        r"C:\streamlit_files\nap_img",
-                                                        r"C:\streamlit_files\symbolism_img",
-                                                        r"C:\streamlit_files\rc_img",
-                                                        r"C:\streamlit_files\cu_img",
-                                                        r"C:\streamlit_files\bq_img",
-                                                        r"C:\streamlit_files\northern_renaissance_img",
-                                                        r"C:\streamlit_files\impressionism_img",
-                                                        r"C:\streamlit_files\romanticism_img",
-                                                        r"C:\streamlit_files\sr_img",
-                                                        r"C:\streamlit_files\expressionism_img",
-                                                        r"C:\streamlit_files\realism_img"]
+                                folder_paths = ["gs://csac_final_v2/new/abstract_expressionism_img",
+                                                        "gs://csac_final_v2/new/nap_img",
+                                                        "gs://csac_final_v2/new/symbolism_img",
+                                                        "gs://csac_final_v2/new/rc_img",
+                                                        "gs://csac_final_v2/new/cu_img",
+                                                        "gs://csac_final_v2/new/bq_img",
+                                                        "gs://csac_final_v2/new/northern_renaissance_img",
+                                                        "gs://csac_final_v2/new/impressionism_img",
+                                                        "gs://csac_final_v2/new/romanticism_img",
+                                                        "gs://csac_final_v2/new/sr_img",
+                                                        "gs://csac_final_v2/new/expressionism_img",
+                                                        "gs://csac_final_v2/new/realism_img"]
                                         
                                 files = ['abstract_expressionism_', 'nap_', 'symbolism_', 'rc_', 'cu_', 'bq_', 'orthern_renaissance',
                                                       'impressionism_', 'romanticism_', 'sr_', 'expressionism_', 'realism_']
@@ -369,8 +356,17 @@ elif selected == 'Know Thy Art':
                                         if num.startswith(prefix):
                                             number = num[len(prefix):]
                                             file_path = get_style_filename(prefix, number)
-                                            image = imread(file_path)
-                                        
+                                            @st.cache_data
+                                            def image_read(arg):
+                                                client = storage.Client()
+                                                bucket = client.get_bucket(st.secrets['my_bucket'])
+                                                blob = bucket.blob(st.secrets['bucket_path']+arg)
+                                                image_bytes = blob.download_as_bytes()
+                                                image = Image.open(BytesIO(image_bytes))
+                                                arr = np.frombuffer(image_bytes, np.uint8)
+                                                result = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                                                return result
+                                            image = image_read(file_path)
                                             plt.subplot(3, 3, i + 1)
                                             plt.imshow(image)
                                             plt.axis('off')
@@ -393,7 +389,8 @@ elif selected == 'Know Thy Art':
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
                                 @st.cache_resource
                                 def vgg_model():
-                                    model=load_model("C:/streamlit_files2/vgg16.h5")
+                                    conn = st.experimental_connection('gcs', type=FilesConnection)
+                                    model=conn.open("gs://csac_final_v2/new/vgg16.h5", mode="rb")
                                     return model
                                 m = vgg_model()
                                 x = img_to_array(cropped_img)
@@ -403,9 +400,8 @@ elif selected == 'Know Thy Art':
                                 predict = m.predict(pinp(x))
                                 @st.cache_data
                                 def total_db():
-                                    file = open("C:/streamlit_files2/total.txt","rb")
-                                    total_df = pickle.load(file)
-                                    file.close()
+                                    conn = st.experimental_connection('gcs', type=FilesConnection)
+                                    total_df=conn.open("gs://csac_final_v2/new/total.txt", mode="rb")
                                     return total_df
                                 total=total_db()
                                 index_predict = total['predict']                            
@@ -415,7 +411,7 @@ elif selected == 'Know Thy Art':
                                 x = np.array(similarities).reshape(-1,)                                            
                                 # 가장 유사한 이미지 9개
                                 top_9 = total.iloc[np.argsort(x)[::-1][:9]].reset_index(drop=True)                                            
-                                top_9['url'] = top_9['url'].apply(lambda x: 'C:/streamlit_files3/paintings/' + x)                                    
+                                top_9['url'] = top_9['url'].apply(lambda x: 'gs://csac_final_v2/new/paintings/' + x)                                    
                                 plt.figure(figsize=(10, 10))
                                 i = 1                                    
                                 for idx, url in enumerate(top_9['url']):
@@ -566,13 +562,12 @@ elif selected=='Artwork MBTI':
     
     def main():
         st.title("Mini Game - 미술사조 mbti test :heart:")
-        image_folder = "C:/streamlit_files/new_folder/"  # 이미지 폴더 경로
+        image_folder = "gs://csac_final_v2/new/mbti/"  # 이미지 폴더 경로
         image_names = [f"img_{i}.jpg" for i in range(1, 13)]  # 이미지 파일명 리스트
     
         images = [Image.open(image_folder + name) for name in image_names]
-    
-        mbti_data = pd.read_csv(r"C:\streamlit_files\style_mbti_v2.csv")
-    
+        conn = st.experimental_connection('gcs', type=FilesConnection)
+        mbti_data=conn.read("gs://csac_final_v2/new/style_mbti_v2.csv", input_format='csv')    
         sequential_matchup_game(images, image_folder, mbti_data)
     
     if __name__ == "__main__":
@@ -594,35 +589,34 @@ if selected == 'Speech to Art to Speech':
     
     tab1, tab2 = st.tabs(["Impressionism", "Surrealism"])
     
-    os.environ["REPLICATE_API_TOKEN"] = "r8_5lJEVWYy7MMARP3qpVcrrY4yByx8oM32lV6RF"
+    os.environ["REPLICATE_API_TOKEN"] = st.secrets['replicate_api_token']
     
     def speak(text):
          tts = gTTS(text=text, lang='ko', slow=False)
-         filename='voice.mp3'
-         audio_dir=f'c:/data/{filename}'
-         tts.save(audio_dir)
-         playsound(audio_dir)
-         os.remove(audio_dir)
+         with tempfile.TemporaryFile(suffix=".mp3") as temp:
+            temp.write(tts)
+            temp.seek(0)
+            playsound(temp.name)
     
     @st.cache_resource
     def generate_image(img_description):
         output = replicate.run(
-            "ryan-koo92/sdxl-ip:530e6d94142dc71729cfb592499c81ba511b3c289c08cece5cb686a764f91862",
+            st.secrets['img_generator_1'],
             input={"prompt": f"{img_description}"})
         return output
     
     @st.cache_resource
     def generate_image_2(img_description):
         output = replicate.run(
-            "ryan-koo92/sdxl-sr:121c2f6a3bbb85b9f34430565fc3b0398a3b4b469e2179fcd6210638089feab0",
+            st.secrets['img_generator_2'],
             input={"prompt": f"{img_description}"})
         return output
     
     @st.cache_resource
     def generate_text(img_description):
         output = replicate.run(
-            "joehoover/mplug-owl:51a43c9d00dfd92276b2511b509fcb3ad82e221f6a9e5806c54e69803e291d6b",
-            input={"prompt" : 'This image is an art painting, and please describe this art painting in the order below. First, describe its genre. Genre refers to the subject matter and objects depicted. Second, describe its media. Media refers to materials the artwork is made from, and to techniques used by the artist to create that artwork.  Third, describe its style. Style refers to its distinctive visual elements, techniques and methods. And finally, describe this art painting as visually accurate as possible.',
+            st.secrets['multimodal_llm'],
+            input={"prompt" : st.secrets['img_prompt'],
                 "img":image})
         text=[]
         for item in output:
@@ -632,40 +626,36 @@ if selected == 'Speech to Art to Speech':
     
     @st.cache_resource
     def translate_ko(text):
-        translator = deepl.Translator('2fc1546f-1428-6006-bf76-feaf45564fb0:fx') 
+        translator = deepl.Translator(st.secrets['deepl_api']) 
         result = translator.translate_text(text, target_lang='KO') 
         return result.text
 
     @st.cache_resource
     def translate_en(text):
-        translator = deepl.Translator('2fc1546f-1428-6006-bf76-feaf45564fb0:fx') 
+        translator = deepl.Translator(st.secrets['deepl_api']) 
         result = translator.translate_text(text, target_lang='EN-US') 
         return result.text
     
     def naver_clover_tts(text) :
-        try:
-            client_id = "kcl33iujct" # Ryan Koo
-            client_secret = "yLC9VzREQcPNu8w4Quy6tg8UiWa6BxGLt9AhqSeT" # Ryan Koo
-            
-            encText = urllib.parse.quote(text)
-            data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
-            url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
-            
-            request = urllib.request.Request(url)
-            request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
-            request.add_header("X-NCP-APIGW-API-KEY",client_secret)
-            response = urllib.request.urlopen(request, data=data.encode('utf-8'))
-            rescode = response.getcode()
-            
-            if(rescode==200):
-                response_body = response.read()
-                with open('C:/project2/1113.mp3', 'wb') as f:
-                    f.write(response_body)
-                playsound('C:/project2/1113.mp3')
-            else:
-                print("Error Code:" + rescode)
-        finally:
-            os.remove('C:/project2/1113.mp3')
+        
+        client_id = st.secrets['clova_id_2'] # Ryan Koo
+        client_secret = st.secrets['clova_secrets_2'] # Ryan Koo
+        
+        encText = urllib.parse.quote(text)
+        data = st.secrets['clova_data'] + encText;
+        url = st.secrets['clova_url']
+        
+        request = urllib.request.Request(url)
+        request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
+        request.add_header("X-NCP-APIGW-API-KEY",client_secret)
+        response = urllib.request.urlopen(request, data=data.encode('utf-8'))
+        rescode = response.getcode()
+        if(rescode==200):
+            response_body = response.read()
+            with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                temp.write(response_body)
+                temp.seek(0)
+                playsound(temp.name)
     
     with tab1 :
     
@@ -747,9 +737,7 @@ if selected == 'Speech to Art to Speech':
             pass
    
     with tab2 :
-        
-        os.environ["REPLICATE_API_TOKEN"] = "r8_5lJEVWYy7MMARP3qpVcrrY4yByx8oM32lV6RF"
-        
+            
         st.title("Speech to Art to Speech")
         st.subheader(':red[Surrealism] :art:')
 
@@ -863,7 +851,7 @@ elif selected == '미술박사':
         def completion_with_backoff(**kwargs):
             return openai.Completion.create(**kwargs)
         
-        openai.api_key = "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"
+        openai.api_key = st.secrets['openai_api']
         
         uploaded_file = 'C:/streamlit/v2_new_art_df.csv'
         art_df = pd.read_csv(uploaded_file, encoding='utf-8')
@@ -873,9 +861,13 @@ elif selected == '미술박사':
         buffer=io.StringIO()
         df.info(buf=buffer)
         info_str=buffer.getvalue()
-        
-        uploaded_file = 'C:/streamlit/v2_new_art_df.csv'
-        art_df = pd.read_csv(uploaded_file, encoding='utf-8')
+
+        @st.cache_data
+        def art_info():
+            conn = st.experimental_connection('gcs', type=FilesConnection)
+            result=conn.read("gs://csac_final_v2/new/v2_new_art_df.csv", input_format='csv')
+            return result
+        art_df=art_info()
         df_ref=art_df.Reference
         df=art_df.drop(columns=['Reference'])
 
