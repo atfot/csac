@@ -3,7 +3,6 @@ import copy
 import streamlit as st
 from streamlit_option_menu import option_menu
 import PIL
-from PIL import Image
 from colorthief import ColorThief
 import webcolors
 from google.cloud import storage
