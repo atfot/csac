@@ -67,7 +67,6 @@ from tenacity import (
 
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 
-@st.cache_data
 def load_image():
     image = Image.open("https://storage.googleapis.com/csac_final_v2/new/title.jpg")
     return image
@@ -79,7 +78,6 @@ with st.sidebar:
     
     st.divider()
     
-@st.cache_data
 def load_and_resize_images():
     images = []
     for i in range(1, 6):
