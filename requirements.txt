@@ -15,7 +15,7 @@ ultralytics==8.0.145
 tensorflow==2.13.0
 tensorflow-estimator==2.13.0
 tensorflow-hub==0.14.0
-tensorflow-intel==2.13.0
+tensorflow-intel
 numpy==1.24.3
 pandas==1.5.3
 pathlib==1.0.1
