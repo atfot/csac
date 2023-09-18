@@ -94,12 +94,18 @@ if selected == 'Home':
 
 elif selected == 'Know Thy Art':
     #@st.cache_resource
-    def yolo():
-        conn = st.experimental_connection('gcs', type=FilesConnection)
-        temp=conn.read("gs://csac_final_v2/new/best_m.pt", input_format='pt')
-        model = YOLO(temp)
-        return model
-    model = yolo()
+    def download_blob_as_bytes(bucket_name, source_blob_name):
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(source_blob_name)
+        blob_data = blob.download_as_bytes()
+        return blob_data
+    bucket_name = st.secrets['my_bucket']
+    source_blob_name = st.secrets['bucket_path']+'best_m.pt'
+    blob_data = download_blob_as_bytes(bucket_name, source_blob_name)
+    buffer = io.BytesIO(blob_data)
+    model = torch.jit.load(buffer)
+
     with st.form(key="form"):
         source_img=st.file_uploader(label='Choose an image...', type=['png','jpg', 'jpeg'])
         submit_button = st.form_submit_button(label="Analyze")
