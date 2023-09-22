@@ -45,5 +45,4 @@ gTTS
 #pickle
 #re
 streamlit-audiorec
-homekit
-pygobject
+gi
