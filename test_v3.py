@@ -85,8 +85,6 @@ mbti_data = None
 for url, suffix in urls:
     file_name = url.split('/')[-1]
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-        if os.path.exists(temp_file.name):
-            os.remove(temp_file.name)
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             for chunk in response.iter_content(chunk_size=256):
