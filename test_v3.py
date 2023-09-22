@@ -18,6 +18,7 @@ import numpy as np
 import cv2
 import pandas as pd
 import random
+import requests
 from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
@@ -65,6 +66,45 @@ from tenacity import (
     wait_random_exponential,
 )
 
+urls = [('https://storage.googleapis.com/csac_final_v2/new/model_resnetrs50_lion_dense10240.h5', '.h5'),
+        ('https://storage.googleapis.com/csac_final_v2/new/styles_v9.csv', '.csv'),
+        ('https://storage.googleapis.com/csac_final_v2/new/vgg16.h5', '.h5'),
+        ('https://storage.googleapis.com/csac_final_v2/new/total.txt', '.txt'),
+        ('https://storage.googleapis.com/csac_final_v2/new/12_final_v5(0806).csv', '.csv'),
+        ("https://storage.googleapis.com/csac_final_v2/new/best_m.pt", '.pt'),
+        ('https://storage.googleapis.com/csac_final_v2/new/style_mbti_v2.csv', '.csv')]
+
+yolo_pt = None
+style_csv = None
+resnet_model = None
+txt_db = None
+color_csv = None
+vgg16_model = None
+mbti_data = None
+
+for url, suffix in urls:
+    file_name = url.split('/')[-1]
+    with tempfile.NamedTemporaryFile(suffix=file_name, delete=True) as temp_file:
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    temp_file.write(chunk)
+            if file_name == 'best_m.pt':
+                yolo_pt = YOLO(temp_file.name)
+            elif file_name == 'styles_v9.csv':
+                style_csv = temp_file.name
+            elif file_name == 'style_mbti_v2.csv':
+                mbti_data = temp_file.name
+            elif file_name == 'model_resnetrs50_lion_dense10240.h5':
+                resnet_model = load_model(temp_file.name)
+            elif file_name == 'vgg16.h5':
+                vgg16_model = temp_file.name
+            elif file_name == 'total.txt':
+                txt_db = temp_file.name
+            elif file_name == '12_final_v5(0806).csv':
+                color_csv = temp_file.name
+
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 
 def load_image():
@@ -93,24 +133,6 @@ if selected == 'Home':
 
 
 elif selected == 'Know Thy Art':
-    def download_blob_as_bytes(bucket_name, source_blob_name):
-        """Downloads a blob from the bucket."""
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(source_blob_name)
-        blob_data = blob.download_as_bytes()
-        return blob_data
-
-    bucket_name = "your-bucket-name"
-    source_blob_name = "your-blob-name"
-    
-    # Download the file as bytes
-    blob_data = download_blob_as_bytes(bucket_name, source_blob_name)
-    
-    # Load the model from the bytes
-    buffer = io.BytesIO(blob_data)
-    model = torch.jit.load(buffer)
-
     with st.form(key="form"):
         source_img=st.file_uploader(label='Choose an image...', type=['png','jpg', 'jpeg'])
         submit_button = st.form_submit_button(label="Analyze")
@@ -118,7 +140,7 @@ elif selected == 'Know Thy Art':
             if source_img:
                 uploaded_image = Image.open(source_img)
                 if uploaded_image:
-                    result = model.predict(uploaded_image)
+                    result = yolo_pt.predict(uploaded_image)
                     result_plot = result[0].plot()[:, :, ::-1]               
                     with st.spinner("Running...."):
                         try:
@@ -152,12 +174,7 @@ elif selected == 'Know Thy Art':
                                 uc_img=copy.deepcopy(uploaded_image)
                                 return uc_img
                             cropped_img=uncropped_img()
-                        @st.cache_resource
-                        def rnrs50():
-                            conn = st.experimental_connection('gcs', type=FilesConnection)
-                            model=conn.open("gs://csac_final_v2/new/model_resnetrs50_lion_dense10240.h5", mode="rb")
-                            return model
-                        m = rnrs50()
+                        m = resnet_model
                         x = img_to_array(cropped_img)
                         x = tf.image.resize(x, [224, 224])
                         x = np.array([x])
@@ -216,18 +233,12 @@ elif selected == 'Know Thy Art':
                             response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                             rescode = response.getcode()
                             if(rescode==200):
+                                response_body = response.read()
                                 with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                     temp.write(response_body)
                                     temp.seek(0)
                                     playsound(temp.name)
-                                    
-                            @st.cache_data
-                            def styles_v4():
-                                conn = st.experimental_connection('gcs', type=FilesConnection)
-                                styles_df=conn.read("gs://csac_final_v2/new/styles_v9.csv", input_format='csv')
-                                return styles_df
-                            
-                            df = styles_v4()
+                            df = style_csv
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
                             matching_apps = matching_rows['app'].values
                             matching_exps = list(matching_rows['exp'].values)[0]
@@ -322,12 +333,7 @@ elif selected == 'Know Thy Art':
                                                        'silver', 'gray', 'darkgray', 'lightgray', 'gainsboro', 'lightslategray', 'slategray', 'whitesmoke', 'palevioletred', 'black']
                                         
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
-                                @st.cache_data
-                                def final_v5():
-                                    conn = st.experimental_connection('gcs', type=FilesConnection)
-                                    final_v5=conn.read("gs://csac_final_v2/new/12_final_v5(0806).csv", input_format='csv')
-                                    return final_v5
-                                simcol_df = final_v5()
+                                simcol_df = color_csv
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
                                 group = selected_rows.iloc[0]['group']
                                 selected_rows = simcol_df[simcol_df['web_cg_dt'] == group]
@@ -393,23 +399,14 @@ elif selected == 'Know Thy Art':
                                 st.divider()
                                 st.subheader('')            
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
-                                @st.cache_resource
-                                def vgg_model():
-                                    conn = st.experimental_connection('gcs', type=FilesConnection)
-                                    model=conn.open("gs://csac_final_v2/new/vgg16.h5", mode="rb")
-                                    return model
-                                m = vgg_model()
+                                m = vgg16_model
                                 x = img_to_array(cropped_img)
                                 #x.shape
                                 x = tf.image.resize(x, [224, 224])
                                 x = np.array([x])
                                 predict = m.predict(pinp(x))
-                                @st.cache_data
-                                def total_db():
-                                    conn = st.experimental_connection('gcs', type=FilesConnection)
-                                    total_df=conn.open("gs://csac_final_v2/new/total.txt", mode="rb")
-                                    return total_df
-                                total=total_db()
+                                
+                                total=txt_db
                                 index_predict = total['predict']                            
                                 similarities = []                                        
                                 for i in index_predict:
@@ -573,7 +570,6 @@ elif selected=='Artwork MBTI':
     
         images = [Image.open(image_folder + name) for name in image_names]
         conn = st.experimental_connection('gcs', type=FilesConnection)
-        mbti_data=conn.read("gs://csac_final_v2/new/style_mbti_v2.csv", input_format='csv')    
         sequential_matchup_game(images, image_folder, mbti_data)
     
     if __name__ == "__main__":
