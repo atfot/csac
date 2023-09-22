@@ -236,6 +236,7 @@ elif selected == 'Know Thy Art':
                                 with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                     temp.write(response_body)
                                     temp.seek(0)
+                                    audio_file = open(temp.name, 'rb')
                                     audio_bytes = audio_file.read()
                                     base64_bytes = base64.b64encode(audio_bytes)
                                     base64_string = base64_bytes.decode()
@@ -260,6 +261,7 @@ elif selected == 'Know Thy Art':
                                     with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                         temp.write(response_body)
                                         temp.seek(0)
+                                        audio_file = open(temp.name, 'rb')
                                         audio_bytes = audio_file.read()
                                         base64_bytes = base64.b64encode(audio_bytes)
                                         base64_string = base64_bytes.decode()
@@ -604,6 +606,7 @@ if selected == 'Speech to Art to Speech':
          with tempfile.TemporaryFile(suffix=".mp3") as temp:
             temp.write(tts)
             temp.seek(0)
+            audio_file = open(temp.name, 'rb')
             audio_bytes = audio_file.read()
             base64_bytes = base64.b64encode(audio_bytes)
             base64_string = base64_bytes.decode()
