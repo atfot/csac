@@ -590,618 +590,618 @@ elif selected=='Artwork MBTI':
 
 elif selected == 'Speech to Art to Speech':
 
-if 'load_state' not in st.session_state:
-    st.session_state.load_state = False
+    if 'load_state' not in st.session_state:
+        st.session_state.load_state = False
+        
+    if 'generate_state' not in st.session_state:
+        st.session_state.generate_state = False
     
-if 'generate_state' not in st.session_state:
-    st.session_state.generate_state = False
-
-if 'load_state_2' not in st.session_state:
-    st.session_state.load_state_2 = False
+    if 'load_state_2' not in st.session_state:
+        st.session_state.load_state_2 = False
+        
+    if 'generate_state_2' not in st.session_state:
+        st.session_state.generate_state_2 = False
     
-if 'generate_state_2' not in st.session_state:
-    st.session_state.generate_state_2 = False
-
-tab1, tab2 = st.tabs(["Impressionism", "Surrealism"])
-
-os.environ["REPLICATE_API_TOKEN"] = st.secrets['replicate_api_token']
-
-def speak(text):
-     tts = gTTS(text=text, lang='ko', slow=False)
-     with tempfile.TemporaryFile(suffix=".mp3") as temp:
-        temp.write(tts)
-        temp.seek(0)
-        audio_file = open(temp.name, 'rb')
-        audio_bytes = audio_file.read()
-        base64_bytes = base64.b64encode(audio_bytes)
-        base64_string = base64_bytes.decode()
-        st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)
-
-@st.cache_resource
-def generate_image(img_description):
-    output = replicate.run(
-        st.secrets['img_generator_1'],
-        input={"prompt": f"{img_description}"})
-    return output
-
-@st.cache_resource
-def generate_image_2(img_description):
-    output = replicate.run(
-        st.secrets['img_generator_2'],
-        input={"prompt": f"{img_description}"})
-    return output
-
-@st.cache_resource
-def generate_text(img_description):
-    output = replicate.run(
-        st.secrets['multimodal_llm'],
-        input={"prompt" : st.secrets['img_prompt'],
-            "img":image})
-    text=[]
-    for item in output:
-        text.append(item)
-    text=''.join(text)
-    return text
-
-@st.cache_resource
-def translate_ko(text):
-    translator = deepl.Translator(st.secrets['deepl_api']) 
-    result = translator.translate_text(text, target_lang='KO') 
-    return result.text
-
-@st.cache_resource
-def translate_en(text):
-    translator = deepl.Translator(st.secrets['deepl_api']) 
-    result = translator.translate_text(text, target_lang='EN-US') 
-    return result.text
-
-def naver_clover_tts(text) :
+    tab1, tab2 = st.tabs(["Impressionism", "Surrealism"])
     
-    client_id = st.secrets['clova_id_2'] # Ryan Koo
-    client_secret = st.secrets['clova_secrets_2'] # Ryan Koo
+    os.environ["REPLICATE_API_TOKEN"] = st.secrets['replicate_api_token']
     
-    encText = urllib.parse.quote(text)
-    data = st.secrets['clova_data'] + encText;
-    url = st.secrets['clova_url']
-    
-    request = urllib.request.Request(url)
-    request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
-    request.add_header("X-NCP-APIGW-API-KEY",client_secret)
-    response = urllib.request.urlopen(request, data=data.encode('utf-8'))
-    rescode = response.getcode()
-    if(rescode==200):
-        response_body = response.read()
-        with tempfile.TemporaryFile(suffix=".mp3") as temp:
-            temp.write(response_body)
+    def speak(text):
+         tts = gTTS(text=text, lang='ko', slow=False)
+         with tempfile.TemporaryFile(suffix=".mp3") as temp:
+            temp.write(tts)
             temp.seek(0)
             audio_file = open(temp.name, 'rb')
             audio_bytes = audio_file.read()
             base64_bytes = base64.b64encode(audio_bytes)
             base64_string = base64_bytes.decode()
             st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)
-
-with tab1 :
-
-    st.title("Speech to Art to Speech")
-    st.subheader(':blue[Impressionism] :male-artist:')
-
-    st.markdown("""---""")
     
-    wav_audio_data = st_audiorec()
+    @st.cache_resource
+    def generate_image(img_description):
+        output = replicate.run(
+            st.secrets['img_generator_1'],
+            input={"prompt": f"{img_description}"})
+        return output
     
-    if wav_audio_data or st.session_state.load_state:
-        st.session_state.load_state = True
-        try : 
-            temp_audio_file = "temp_audio.wav"
-            with open(temp_audio_file, "wb") as f:
-                f.write(wav_audio_data)
-            
-            speech_sr = SR.Recognizer()
-            
-            with SR.AudioFile(temp_audio_file) as source:
-                audio = speech_sr.record(source)
+    @st.cache_resource
+    def generate_image_2(img_description):
+        output = replicate.run(
+            st.secrets['img_generator_2'],
+            input={"prompt": f"{img_description}"})
+        return output
+    
+    @st.cache_resource
+    def generate_text(img_description):
+        output = replicate.run(
+            st.secrets['multimodal_llm'],
+            input={"prompt" : st.secrets['img_prompt'],
+                "img":image})
+        text=[]
+        for item in output:
+            text.append(item)
+        text=''.join(text)
+        return text
+    
+    @st.cache_resource
+    def translate_ko(text):
+        translator = deepl.Translator(st.secrets['deepl_api']) 
+        result = translator.translate_text(text, target_lang='KO') 
+        return result.text
+    
+    @st.cache_resource
+    def translate_en(text):
+        translator = deepl.Translator(st.secrets['deepl_api']) 
+        result = translator.translate_text(text, target_lang='EN-US') 
+        return result.text
+    
+    def naver_clover_tts(text) :
+        
+        client_id = st.secrets['clova_id_2'] # Ryan Koo
+        client_secret = st.secrets['clova_secrets_2'] # Ryan Koo
+        
+        encText = urllib.parse.quote(text)
+        data = st.secrets['clova_data'] + encText;
+        url = st.secrets['clova_url']
+        
+        request = urllib.request.Request(url)
+        request.add_header("X-NCP-APIGW-API-KEY-ID",client_id)
+        request.add_header("X-NCP-APIGW-API-KEY",client_secret)
+        response = urllib.request.urlopen(request, data=data.encode('utf-8'))
+        rescode = response.getcode()
+        if(rescode==200):
+            response_body = response.read()
+            with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                temp.write(response_body)
+                temp.seek(0)
+                audio_file = open(temp.name, 'rb')
+                audio_bytes = audio_file.read()
+                base64_bytes = base64.b64encode(audio_bytes)
+                base64_string = base64_bytes.decode()
+                st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)
+    
+    with tab1 :
+    
+        st.title("Speech to Art to Speech")
+        st.subheader(':blue[Impressionism] :male-artist:')
+    
+        st.markdown("""---""")
+        
+        wav_audio_data = st_audiorec()
+        
+        if wav_audio_data or st.session_state.load_state:
+            st.session_state.load_state = True
+            try : 
+                temp_audio_file = "temp_audio.wav"
+                with open(temp_audio_file, "wb") as f:
+                    f.write(wav_audio_data)
                 
-            text = speech_sr.recognize_google(audio_data=audio, language='ko-KR')
-            
-            st.markdown("""---""")
-            
-            st.markdown("<h3 style='text-align: left; color: black;'> 입력된 음성 : <br></h3>", unsafe_allow_html=True)
-            st.write(text)
-            
-            translated_text = translate_en(text)
-            
-            st.markdown("<h3 style='text-align: left; color: black;'> 한영 번역: <br></h3>", unsafe_allow_html=True)
-            st.write(translated_text)
-            
-            st.markdown("""---""")
-            
-            os.remove(temp_audio_file)
-            
-            img_description = st.text_input(label='Image Description', value=translated_text)
-            
-            generate = st.button('Generate Impressionist Painting')
-                        
-            if generate or st.session_state.generate_state:
-                st.session_state.generate_state = True
+                speech_sr = SR.Recognizer()
+                
+                with SR.AudioFile(temp_audio_file) as source:
+                    audio = speech_sr.record(source)
+                    
+                text = speech_sr.recognize_google(audio_data=audio, language='ko-KR')
+                
                 st.markdown("""---""")
-                generated_img = generate_image(img_description)
-                st.markdown("<h3 style='text-align: left; color: black;'> 그림 작품 : <br></h3>", unsafe_allow_html=True)
-                st.image(generated_img)
                 
-                image= generated_img[0]
-                
-                text = generate_text(image)
-                
-                st.markdown("""---""")
-                
-                st.markdown("<h3 style='text-align: left; color: black;'> 그림에 대한 설명 : <br></h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='text-align: left; color: black;'> 입력된 음성 : <br></h3>", unsafe_allow_html=True)
                 st.write(text)
                 
-                translated_text_2 = translate_ko(text)
+                translated_text = translate_en(text)
                 
-                st.markdown("<h3 style='text-align: left; color: black;'> 영한 번역 : <br></h3>", unsafe_allow_html=True)
-                st.write(translated_text_2)
-                
-                st.write('')
-                
-                button = st.button(label='음성지원 :mega:') 
+                st.markdown("<h3 style='text-align: left; color: black;'> 한영 번역: <br></h3>", unsafe_allow_html=True)
+                st.write(translated_text)
                 
                 st.markdown("""---""")
                 
-                if button :
-                    naver_clover_tts(translated_text_2)
+                os.remove(temp_audio_file)
+                
+                img_description = st.text_input(label='Image Description', value=translated_text)
+                
+                generate = st.button('Generate Impressionist Painting')
+                            
+                if generate or st.session_state.generate_state:
+                    st.session_state.generate_state = True
+                    st.markdown("""---""")
+                    generated_img = generate_image(img_description)
+                    st.markdown("<h3 style='text-align: left; color: black;'> 그림 작품 : <br></h3>", unsafe_allow_html=True)
+                    st.image(generated_img)
                     
-            else:
-                pass
-        except :
-            st.write('다시 시도해 주시길 바랍니다.')
-            
-    else:
-        pass
-
-with tab2 :
-        
-    st.title("Speech to Art to Speech")
-    st.subheader(':red[Surrealism] :art:')
-
-    st.markdown("""---""")
-    
-    wav_audio_data = st_audiorec()
-    
-    if wav_audio_data or st.session_state.load_state_2:
-        st.session_state.load_state_2 = True
-        try : 
-            temp_audio_file = "temp_audio.wav"
-            with open(temp_audio_file, "wb") as f:
-                f.write(wav_audio_data)
-            
-            speech_sr = SR.Recognizer()
-            
-            with SR.AudioFile(temp_audio_file) as source:
-                audio = speech_sr.record(source)
-                
-            text = speech_sr.recognize_google(audio_data=audio, language='ko-KR')
-            
-            st.markdown("""---""")
-            
-            st.markdown("<h3 style='text-align: left; color: black;'> 입력된 음성 : <br></h3>", unsafe_allow_html=True)
-            st.write(text)
-            
-            translated_text = translate_en(text)
-            
-            st.markdown("<h3 style='text-align: left; color: black;'> 한영 번역: <br></h3>", unsafe_allow_html=True)
-            st.write(translated_text)
-            
-            st.markdown("""---""")
-            
-            os.remove(temp_audio_file)
-            
-            img_description = st.text_input(label='Image Description', value=translated_text)
-            
-            generate_2 = st.button('Generate Surrealist Painting')
+                    image= generated_img[0]
+                    
+                    text = generate_text(image)
+                    
+                    st.markdown("""---""")
+                    
+                    st.markdown("<h3 style='text-align: left; color: black;'> 그림에 대한 설명 : <br></h3>", unsafe_allow_html=True)
+                    st.write(text)
+                    
+                    translated_text_2 = translate_ko(text)
+                    
+                    st.markdown("<h3 style='text-align: left; color: black;'> 영한 번역 : <br></h3>", unsafe_allow_html=True)
+                    st.write(translated_text_2)
+                    
+                    st.write('')
+                    
+                    button = st.button(label='음성지원 :mega:') 
+                    
+                    st.markdown("""---""")
+                    
+                    if button :
+                        naver_clover_tts(translated_text_2)
                         
-            if generate_2 or st.session_state.generate_state_2:
-                st.session_state.generate_state_2 = True
+                else:
+                    pass
+            except :
+                st.write('다시 시도해 주시길 바랍니다.')
+                
+        else:
+            pass
+    
+    with tab2 :
+            
+        st.title("Speech to Art to Speech")
+        st.subheader(':red[Surrealism] :art:')
+    
+        st.markdown("""---""")
+        
+        wav_audio_data = st_audiorec()
+        
+        if wav_audio_data or st.session_state.load_state_2:
+            st.session_state.load_state_2 = True
+            try : 
+                temp_audio_file = "temp_audio.wav"
+                with open(temp_audio_file, "wb") as f:
+                    f.write(wav_audio_data)
+                
+                speech_sr = SR.Recognizer()
+                
+                with SR.AudioFile(temp_audio_file) as source:
+                    audio = speech_sr.record(source)
+                    
+                text = speech_sr.recognize_google(audio_data=audio, language='ko-KR')
+                
                 st.markdown("""---""")
-                generated_img = generate_image_2(img_description)
-                st.markdown("<h3 style='text-align: left; color: black;'> 그림 작품 : <br></h3>", unsafe_allow_html=True)
-                st.image(generated_img)
                 
-                image= generated_img[0]
-                
-                text = generate_text(image)
-                
-                st.markdown("""---""")
-                
-                st.markdown("<h3 style='text-align: left; color: black;'> 그림에 대한 설명 : <br></h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='text-align: left; color: black;'> 입력된 음성 : <br></h3>", unsafe_allow_html=True)
                 st.write(text)
                 
-                translated_text_2 = translate_ko(text)
+                translated_text = translate_en(text)
                 
-                st.markdown("<h3 style='text-align: left; color: black;'> 영한 번역 : <br></h3>", unsafe_allow_html=True)
-                st.write(translated_text_2)
-                
-                st.write('')
-                
-                button = st.button(label='음성지원 :loudspeaker:') 
+                st.markdown("<h3 style='text-align: left; color: black;'> 한영 번역: <br></h3>", unsafe_allow_html=True)
+                st.write(translated_text)
                 
                 st.markdown("""---""")
                 
-                if button :
-                    naver_clover_tts(translated_text_2)
+                os.remove(temp_audio_file)
+                
+                img_description = st.text_input(label='Image Description', value=translated_text)
+                
+                generate_2 = st.button('Generate Surrealist Painting')
+                            
+                if generate_2 or st.session_state.generate_state_2:
+                    st.session_state.generate_state_2 = True
+                    st.markdown("""---""")
+                    generated_img = generate_image_2(img_description)
+                    st.markdown("<h3 style='text-align: left; color: black;'> 그림 작품 : <br></h3>", unsafe_allow_html=True)
+                    st.image(generated_img)
                     
-            else:
-                pass
-        
-        except :
-            st.write('다시 시도해 주시길 바랍니다..')
+                    image= generated_img[0]
+                    
+                    text = generate_text(image)
+                    
+                    st.markdown("""---""")
+                    
+                    st.markdown("<h3 style='text-align: left; color: black;'> 그림에 대한 설명 : <br></h3>", unsafe_allow_html=True)
+                    st.write(text)
+                    
+                    translated_text_2 = translate_ko(text)
+                    
+                    st.markdown("<h3 style='text-align: left; color: black;'> 영한 번역 : <br></h3>", unsafe_allow_html=True)
+                    st.write(translated_text_2)
+                    
+                    st.write('')
+                    
+                    button = st.button(label='음성지원 :loudspeaker:') 
+                    
+                    st.markdown("""---""")
+                    
+                    if button :
+                        naver_clover_tts(translated_text_2)
+                        
+                else:
+                    pass
             
-    else:
-        pass
+            except :
+                st.write('다시 시도해 주시길 바랍니다..')
+                
+        else:
+            pass
 
 elif selected == '미술박사':
-with st.form('chatbot'):
-    OP=Options()
-    OP.add_argument('--headless=new')
-    OP.add_experimental_option(
-        "prefs",
-        {
-            "credentials_enable_service": False,
-            "profile.password_manager_enabled": False,
-            "profile.default_content_setting_values.notifications": 2           
-            # with 2 should disable notifications
-        },
-    )
-    OP.add_argument('--disable-notifications') 
-    OP.add_argument("--disable-infobars")
-    OP.add_argument("--disable-extensions")
-    OP.add_argument("--start-maximized");
-    OP.add_argument("--window-size=1920,1080");
-    OP.add_argument('--ignore-certificate-errors')
-    OP.add_argument('--allow-running-insecure-content')
-    OP.add_argument("--disable-web-security")
-    OP.add_argument("--disable-site-isolation-trials")
-    OP.add_argument("--user-data-dir=C:\\Users\\home\\Downloads")
-    OP.add_argument("--disable-features=NetworkService,NetworkServiceInProcess")
-    OP.add_argument("--test-type")
-    OP.add_argument('--no-sandbox')
-    OP.add_argument('--disable-gpu')
-    #OP.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
-    OP.add_argument('--profile-directory=Default')
-    OP.add_argument('--user-data-dir=C:/Temp/ChromeProfile')
+    with st.form('chatbot'):
+        OP=Options()
+        OP.add_argument('--headless=new')
+        OP.add_experimental_option(
+            "prefs",
+            {
+                "credentials_enable_service": False,
+                "profile.password_manager_enabled": False,
+                "profile.default_content_setting_values.notifications": 2           
+                # with 2 should disable notifications
+            },
+        )
+        OP.add_argument('--disable-notifications') 
+        OP.add_argument("--disable-infobars")
+        OP.add_argument("--disable-extensions")
+        OP.add_argument("--start-maximized");
+        OP.add_argument("--window-size=1920,1080");
+        OP.add_argument('--ignore-certificate-errors')
+        OP.add_argument('--allow-running-insecure-content')
+        OP.add_argument("--disable-web-security")
+        OP.add_argument("--disable-site-isolation-trials")
+        OP.add_argument("--user-data-dir=C:\\Users\\home\\Downloads")
+        OP.add_argument("--disable-features=NetworkService,NetworkServiceInProcess")
+        OP.add_argument("--test-type")
+        OP.add_argument('--no-sandbox')
+        OP.add_argument('--disable-gpu')
+        #OP.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
+        OP.add_argument('--profile-directory=Default')
+        OP.add_argument('--user-data-dir=C:/Temp/ChromeProfile')
+        
+        @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+        def completion_with_backoff(**kwargs):
+            return openai.Completion.create(**kwargs)
+        
+        openai.api_key = st.secrets['openai_api']
+        
+        uploaded_file = 'C:/streamlit/v2_new_art_df.csv'
+        art_df = pd.read_csv(uploaded_file, encoding='utf-8')
+        df_ref=art_df.Reference
+        df=art_df.drop(columns=['Reference'])
+        
+        buffer=io.StringIO()
+        df.info(buf=buffer)
+        info_str=buffer.getvalue()
     
-    @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-    def completion_with_backoff(**kwargs):
-        return openai.Completion.create(**kwargs)
+        @st.cache_data
+        def art_info():
+            conn = st.experimental_connection('gcs', type=FilesConnection)
+            result=conn.read("gs://csac_final_v2/new/v2_new_art_df.csv", input_format='csv')
+            return result
+        art_df=art_info()
+        df_ref=art_df.Reference
+        df=art_df.drop(columns=['Reference'])
     
-    openai.api_key = st.secrets['openai_api']
-    
-    uploaded_file = 'C:/streamlit/v2_new_art_df.csv'
-    art_df = pd.read_csv(uploaded_file, encoding='utf-8')
-    df_ref=art_df.Reference
-    df=art_df.drop(columns=['Reference'])
-    
-    buffer=io.StringIO()
-    df.info(buf=buffer)
-    info_str=buffer.getvalue()
-
-    @st.cache_data
-    def art_info():
-        conn = st.experimental_connection('gcs', type=FilesConnection)
-        result=conn.read("gs://csac_final_v2/new/v2_new_art_df.csv", input_format='csv')
-        return result
-    art_df=art_info()
-    df_ref=art_df.Reference
-    df=art_df.drop(columns=['Reference'])
-
-    buffer=io.StringIO()
-    df.info(buf=buffer)
-    info_str=buffer.getvalue()
-    
-    def return_answer(user_input):
-        if user_input:
-            #user_input='바로크 미술의 대표 화가들을 가르쳐줘.'
-            try:
-                my_bar=st.progress(0, text='질문 내용 분석중...')
-                pre_prompt_1=f'''If the question below is about art, return 0, otherwise return 1.
-    
-                "{user_input}" 
-                '''
-                #사조,특징,화가,작품,시대적 배경
-                response = completion_with_backoff(
-                  model="text-davinci-003",
-                  prompt=pre_prompt_1,
-                  temperature=1,
-                  max_tokens=10,
-                  top_p=1,
-                  frequency_penalty=0,
-                  presence_penalty=0
-                )
-                qna_c=int(response.choices[0].text.strip())
-                if qna_c == 0 : 
-                    my_bar.progress(10, text='미술 쪽 질문이 맞는 것 같습니다.')
-                    pre_prompt_2=f'''If there is a question related to any of the following: "Art movements, characteristics of art, artists in art, representative art works, and the historical context of art," please output 0; otherwise, output 1.
-    
+        buffer=io.StringIO()
+        df.info(buf=buffer)
+        info_str=buffer.getvalue()
+        
+        def return_answer(user_input):
+            if user_input:
+                #user_input='바로크 미술의 대표 화가들을 가르쳐줘.'
+                try:
+                    my_bar=st.progress(0, text='질문 내용 분석중...')
+                    pre_prompt_1=f'''If the question below is about art, return 0, otherwise return 1.
+        
                     "{user_input}" 
                     '''
-                    response_1 = completion_with_backoff(
+                    #사조,특징,화가,작품,시대적 배경
+                    response = completion_with_backoff(
                       model="text-davinci-003",
-                      prompt=pre_prompt_2,
+                      prompt=pre_prompt_1,
                       temperature=1,
                       max_tokens=10,
                       top_p=1,
                       frequency_penalty=0,
                       presence_penalty=0
                     )
-                    qna_c_1=int(response_1.choices[0].text.strip())                        
-                    if qna_c_1 == 0:
-                        my_bar.progress(25, text='KTA팀의 Database를 사용하겠습니다.')
-                        prompt_1 = f'''Look at this carefully, while thinking step by step.
-                        
+                    qna_c=int(response.choices[0].text.strip())
+                    if qna_c == 0 : 
+                        my_bar.progress(10, text='미술 쪽 질문이 맞는 것 같습니다.')
+                        pre_prompt_2=f'''If there is a question related to any of the following: "Art movements, characteristics of art, artists in art, representative art works, and the historical context of art," please output 0; otherwise, output 1.
+        
                         "{user_input}" 
-                        
-                        We'll call this a 'Input' from now on.
-                        I need a sqlite3 query to retrieve the contents related to this 'Input' from a pandas.DataFrame named 'df'. Below are the df.info(), df.head() df.iloc[0].T of df that you should refer to when writing your query. Note that df.head() is created exactly as it is in df.
-                        
-                        {info_str}
-                        
-                        {df.head()}
-                        
-                        {df.iloc[0].T}
-                        
-                        I'll teach you some precautions when writing queries. You must follow these precautions when answering. Any answer that does not follow these precautions will greatly interfere with my work.
-                        
-                        1. write the query by interpreting or translating the language appropriately to make it easier to apply the above question to df.
-                        If you need to rephrase the question in your query, be sure to refer to the texts described in df.head(), df.iloc[0].T, and df.info().
-                        
-                        2. Always write query statements using only the information in df.
-                        
-                        3. answer the query in the form of a "1-line sql query" starting with 'SELECT' and ending with ';'. Do not attach any text other than the requested answer. Do not include any '\n' or line breaks. Your answer should look like a one-line SQL query.
-                        '''    
+                        '''
                         response_1 = completion_with_backoff(
                           model="text-davinci-003",
-                          prompt=prompt_1,
+                          prompt=pre_prompt_2,
                           temperature=1,
-                          max_tokens=256,
-                          top_p=1,
-                          frequency_penalty=0,
-                          presence_penalty=0
-                        )    
-                        criteria=re.search(r'SELECT.*?;',response_1.choices[0].text.strip())
-                        if criteria:
-                           response_2=' '.join(criteria.group().split())
-                        ref_genre=[]
-                        for i in list(df.사조):
-                            if i in response_2:
-                                ref_genre.append(i)
-                        my_bar.progress(50, text='데이터 조사 준비 완료')
-                        result = ''
-                        if response_2: 
-                            conn = sqlite3.connect(':memory:')
-                            df.to_sql('df', conn, index=False)
-                            query = response_2
-                            cursor = conn.cursor()
-                            cursor.execute(query)
-                            result_rows = cursor.fetchall()
-                            columns = [desc[0] for desc in cursor.description]
-                            result_df = pd.DataFrame(result_rows, columns=columns)
-                            for i, row in result_df.iterrows():
-                                result += f"index_number: {i} \n"
-                                for column in result_df.columns:
-                                    result += f"{column}: {row[column]}"
-                                    if column != result_df.columns[-1]:
-                                        result += " \n"
-                                result += " \n\n"
-                            if result == '':
-                                raise ValueError()
-                        my_bar.progress(75, text='데이터 조사 완료.')
-                        prompt_2=f'''The following content is written as a single line of text for a dataframe:
-                            
-                            {result}
-    
-                Using the information above, respond to the text below in Korean language, written in fluent and correct grammar.
-                
-                "{user_input}"'''
-                        my_bar.progress(90, text='답변을 생각하는 중..')
-                        response_3 = completion_with_backoff(
-                          model="text-davinci-003",
-                          prompt=prompt_2,
-                          temperature=1,
-                          max_tokens=900,
+                          max_tokens=10,
                           top_p=1,
                           frequency_penalty=0,
                           presence_penalty=0
                         )
-                        final_response = response_3.choices[0].text.strip()
-                        if ref_genre:
-                            final_response=final_response+'\n\n\n[Reference]\n'+'\n'.join(art_df.loc[art_df['사조'].isin(ref_genre),'Reference'].tolist())
-                        else:
-                            final_response=final_response+'\n\n\n[Reference]\n'+'KTA팀 DB'
+                        qna_c_1=int(response_1.choices[0].text.strip())                        
+                        if qna_c_1 == 0:
+                            my_bar.progress(25, text='KTA팀의 Database를 사용하겠습니다.')
+                            prompt_1 = f'''Look at this carefully, while thinking step by step.
+                            
+                            "{user_input}" 
+                            
+                            We'll call this a 'Input' from now on.
+                            I need a sqlite3 query to retrieve the contents related to this 'Input' from a pandas.DataFrame named 'df'. Below are the df.info(), df.head() df.iloc[0].T of df that you should refer to when writing your query. Note that df.head() is created exactly as it is in df.
+                            
+                            {info_str}
+                            
+                            {df.head()}
+                            
+                            {df.iloc[0].T}
+                            
+                            I'll teach you some precautions when writing queries. You must follow these precautions when answering. Any answer that does not follow these precautions will greatly interfere with my work.
+                            
+                            1. write the query by interpreting or translating the language appropriately to make it easier to apply the above question to df.
+                            If you need to rephrase the question in your query, be sure to refer to the texts described in df.head(), df.iloc[0].T, and df.info().
+                            
+                            2. Always write query statements using only the information in df.
+                            
+                            3. answer the query in the form of a "1-line sql query" starting with 'SELECT' and ending with ';'. Do not attach any text other than the requested answer. Do not include any '\n' or line breaks. Your answer should look like a one-line SQL query.
+                            '''    
+                            response_1 = completion_with_backoff(
+                              model="text-davinci-003",
+                              prompt=prompt_1,
+                              temperature=1,
+                              max_tokens=256,
+                              top_p=1,
+                              frequency_penalty=0,
+                              presence_penalty=0
+                            )    
+                            criteria=re.search(r'SELECT.*?;',response_1.choices[0].text.strip())
+                            if criteria:
+                               response_2=' '.join(criteria.group().split())
+                            ref_genre=[]
+                            for i in list(df.사조):
+                                if i in response_2:
+                                    ref_genre.append(i)
+                            my_bar.progress(50, text='데이터 조사 준비 완료')
+                            result = ''
+                            if response_2: 
+                                conn = sqlite3.connect(':memory:')
+                                df.to_sql('df', conn, index=False)
+                                query = response_2
+                                cursor = conn.cursor()
+                                cursor.execute(query)
+                                result_rows = cursor.fetchall()
+                                columns = [desc[0] for desc in cursor.description]
+                                result_df = pd.DataFrame(result_rows, columns=columns)
+                                for i, row in result_df.iterrows():
+                                    result += f"index_number: {i} \n"
+                                    for column in result_df.columns:
+                                        result += f"{column}: {row[column]}"
+                                        if column != result_df.columns[-1]:
+                                            result += " \n"
+                                    result += " \n\n"
+                                if result == '':
+                                    raise ValueError()
+                            my_bar.progress(75, text='데이터 조사 완료.')
+                            prompt_2=f'''The following content is written as a single line of text for a dataframe:
+                                
+                                {result}
+        
+                    Using the information above, respond to the text below in Korean language, written in fluent and correct grammar.
+                    
+                    "{user_input}"'''
+                            my_bar.progress(90, text='답변을 생각하는 중..')
+                            response_3 = completion_with_backoff(
+                              model="text-davinci-003",
+                              prompt=prompt_2,
+                              temperature=1,
+                              max_tokens=900,
+                              top_p=1,
+                              frequency_penalty=0,
+                              presence_penalty=0
+                            )
+                            final_response = response_3.choices[0].text.strip()
+                            if ref_genre:
+                                final_response=final_response+'\n\n\n[Reference]\n'+'\n'.join(art_df.loc[art_df['사조'].isin(ref_genre),'Reference'].tolist())
+                            else:
+                                final_response=final_response+'\n\n\n[Reference]\n'+'KTA팀 DB'
+                            my_bar.progress(100, text='답변 완료.')
+                        if qna_c_1 == 1:
+                            my_bar.progress(25, text='Web Search 모드 실행.')
+                            search_prompt = f'''Below is a question. Replace it with an Korean search term that the questioner would use to get the answer they want when searching on Google, and most important expression in your Korean search term should be enclosed in ".
+                            
+                            {user_input} 
+                            '''
+                            search_response = completion_with_backoff(
+                              model="text-davinci-003",
+                              prompt=search_prompt,
+                              temperature=1,
+                              max_tokens=256,
+                              top_p=1,
+                              frequency_penalty=0,
+                              presence_penalty=0
+                            )    
+                            search_response_1=search_response.choices[0].text.strip()
+                            my_bar.progress(30, text=f'"{search_response_1}" 검색중..')
+                            driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=OP)
+                            driver.get(f'https://www.google.com/search?q={search_response_1}')
+                            try:
+                                WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="result-stats"]')))
+                            finally:
+                                for i in range(1, 4):
+                                    try:
+                                        element = driver.find_element(By.XPATH, f'//*[@id="rso"]/div[{i}]/div/div/div[1]/div/div/span/a')
+                                        element.send_keys(Keys.ENTER)
+                                        break
+                                    except:
+                                        pass
+                           
+                            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.TAG_NAME, 'body')))
+                            my_bar.progress(50, text='조사 자료 분석중..')
+                            html=driver.page_source
+                            soup=BeautifulSoup(html,'html.parser')
+                            del html
+                            temp_soup=soup.select_one('body').text
+                            my_bar.progress(85, text='최종 자료를 기반한 답변 작성중..')
+                            response_test = openai.ChatCompletion.create(
+                      model="gpt-3.5-turbo-16k",
+                      messages=[
+                        {
+                          "role": "system",
+                          "content": "You are a helpful assistant."
+                        },
+                        {
+                          "role": "user",
+                          "content": f"""Find the answers in the resources I provide and answer my questions in Korean with correct grammar. Below are the questions and resources.
+                          Question : {user_input}
+                          
+                          Resources : 
+                          {temp_soup}"""
+                        }
+                      ],
+                      temperature=1,
+                      max_tokens=512,
+                      top_p=1,
+                      frequency_penalty=0,
+                      presence_penalty=0
+                    )
+                            search_resp_fin=response_test['choices'][0]['message']['content']
+                            
+                            if search_resp_fin:
+                                final_response=search_resp_fin+'\n\n[Reference]\n\n'+f"{driver.title}\n\n"+f"{driver.current_url}"
+                                driver.quit()
+                                my_bar.progress(100, text='답변 완료.')
+                            else :
+                                final_response='좋은 답변으로 삼을만한 Reference를 찾지 못했습니다. 죄송합니다ㅠㅠ'
+                                driver.quit()
+                                my_bar.progress(100, text='답변 완료.')
+                    if qna_c == 1:
+                        my_bar.progress(100, text='분석 완료')
+                        final_response='''미술과 관련된 궁금증이나 질문을 주신 것이 확실한가요?\n전 <b>요청사항의 형식</b>, <b>미술과 관련이 없는 내용</b>, 또는 <b>궁금증이나 질문이 아닌 것</b>들을 답변할 수 없습니다.'''
+                except Exception:
+                    my_bar.progress(50, text='좀더 확실한 답변을 위해 Web Search 모드가 실행됩니다.')
+                    search_prompt = f'''Below is a question. Replace it with an Korean search term that the questioner would use to get the answer they want when searching on Google, and most important expression in your Korean search term should be enclosed in ".
+                    
+                    {user_input} 
+                    '''
+                    search_response = completion_with_backoff(
+                      model="text-davinci-003",
+                      prompt=search_prompt,
+                      temperature=1,
+                      max_tokens=256,
+                      top_p=1,
+                      frequency_penalty=0,
+                      presence_penalty=0
+                    )    
+                    search_response_1=search_response.choices[0].text.strip()
+                    my_bar.progress(60, text=f'"{search_response_1}" 검색중..')
+                    driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=OP)
+                    driver.get(f'https://www.google.com/search?q={search_response_1}')
+                    try:
+                        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="result-stats"]')))
+                    finally:
+                        for i in range(1, 4):
+                            try:
+                                element = driver.find_element(By.XPATH, f'//*[@id="rso"]/div[{i}]/div/div/div[1]/div/div/span/a')
+                                element.send_keys(Keys.ENTER)
+                                break
+                            except:
+                                pass
+                    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.TAG_NAME, 'body')))
+                    my_bar.progress(70, text='조사한 자료 분석중..')
+                    html=driver.page_source
+                    soup=BeautifulSoup(html,'html.parser')
+                    del html
+                    temp_soup=soup.select_one('body').text
+                    my_bar.progress(95, text='최종 자료를 기반한 답변 작성중..')
+                    response_test = openai.ChatCompletion.create(
+              model="gpt-3.5-turbo-16k",
+              messages=[
+                {
+                  "role": "system",
+                  "content": "You are a helpful assistant."
+                },
+                {
+                  "role": "user",
+                  "content": f"""Find the answers in the resources I provide and answer my questions in Korean with correct grammar. Below are the questions and resources.
+                  Question : {user_input}
+                  
+                  Resources : 
+                  {temp_soup}"""
+                }
+              ],
+              temperature=1,
+              max_tokens=512,
+              top_p=1,
+              frequency_penalty=0,
+              presence_penalty=0
+            )
+                    search_resp_fin=response_test['choices'][0]['message']['content']
+                    if search_resp_fin:
+                        final_response=search_resp_fin+'\n\n[Reference]\n\n'+f"{driver.title}\n\n"+f"{driver.current_url}"
+                        driver.quit()
                         my_bar.progress(100, text='답변 완료.')
-                    if qna_c_1 == 1:
-                        my_bar.progress(25, text='Web Search 모드 실행.')
-                        search_prompt = f'''Below is a question. Replace it with an Korean search term that the questioner would use to get the answer they want when searching on Google, and most important expression in your Korean search term should be enclosed in ".
-                        
-                        {user_input} 
-                        '''
-                        search_response = completion_with_backoff(
-                          model="text-davinci-003",
-                          prompt=search_prompt,
-                          temperature=1,
-                          max_tokens=256,
-                          top_p=1,
-                          frequency_penalty=0,
-                          presence_penalty=0
-                        )    
-                        search_response_1=search_response.choices[0].text.strip()
-                        my_bar.progress(30, text=f'"{search_response_1}" 검색중..')
-                        driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=OP)
-                        driver.get(f'https://www.google.com/search?q={search_response_1}')
-                        try:
-                            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="result-stats"]')))
-                        finally:
-                            for i in range(1, 4):
-                                try:
-                                    element = driver.find_element(By.XPATH, f'//*[@id="rso"]/div[{i}]/div/div/div[1]/div/div/span/a')
-                                    element.send_keys(Keys.ENTER)
-                                    break
-                                except:
-                                    pass
-                       
-                        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.TAG_NAME, 'body')))
-                        my_bar.progress(50, text='조사 자료 분석중..')
-                        html=driver.page_source
-                        soup=BeautifulSoup(html,'html.parser')
-                        del html
-                        temp_soup=soup.select_one('body').text
-                        my_bar.progress(85, text='최종 자료를 기반한 답변 작성중..')
-                        response_test = openai.ChatCompletion.create(
-                  model="gpt-3.5-turbo-16k",
-                  messages=[
-                    {
-                      "role": "system",
-                      "content": "You are a helpful assistant."
-                    },
-                    {
-                      "role": "user",
-                      "content": f"""Find the answers in the resources I provide and answer my questions in Korean with correct grammar. Below are the questions and resources.
-                      Question : {user_input}
-                      
-                      Resources : 
-                      {temp_soup}"""
-                    }
-                  ],
-                  temperature=1,
-                  max_tokens=512,
-                  top_p=1,
-                  frequency_penalty=0,
-                  presence_penalty=0
-                )
-                        search_resp_fin=response_test['choices'][0]['message']['content']
-                        
-                        if search_resp_fin:
-                            final_response=search_resp_fin+'\n\n[Reference]\n\n'+f"{driver.title}\n\n"+f"{driver.current_url}"
-                            driver.quit()
-                            my_bar.progress(100, text='답변 완료.')
-                        else :
-                            final_response='좋은 답변으로 삼을만한 Reference를 찾지 못했습니다. 죄송합니다ㅠㅠ'
-                            driver.quit()
-                            my_bar.progress(100, text='답변 완료.')
-                if qna_c == 1:
-                    my_bar.progress(100, text='분석 완료')
-                    final_response='''미술과 관련된 궁금증이나 질문을 주신 것이 확실한가요?\n전 <b>요청사항의 형식</b>, <b>미술과 관련이 없는 내용</b>, 또는 <b>궁금증이나 질문이 아닌 것</b>들을 답변할 수 없습니다.'''
-            except Exception:
-                my_bar.progress(50, text='좀더 확실한 답변을 위해 Web Search 모드가 실행됩니다.')
-                search_prompt = f'''Below is a question. Replace it with an Korean search term that the questioner would use to get the answer they want when searching on Google, and most important expression in your Korean search term should be enclosed in ".
-                
-                {user_input} 
-                '''
-                search_response = completion_with_backoff(
-                  model="text-davinci-003",
-                  prompt=search_prompt,
-                  temperature=1,
-                  max_tokens=256,
-                  top_p=1,
-                  frequency_penalty=0,
-                  presence_penalty=0
-                )    
-                search_response_1=search_response.choices[0].text.strip()
-                my_bar.progress(60, text=f'"{search_response_1}" 검색중..')
-                driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()),options=OP)
-                driver.get(f'https://www.google.com/search?q={search_response_1}')
-                try:
-                    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="result-stats"]')))
-                finally:
-                    for i in range(1, 4):
-                        try:
-                            element = driver.find_element(By.XPATH, f'//*[@id="rso"]/div[{i}]/div/div/div[1]/div/div/span/a')
-                            element.send_keys(Keys.ENTER)
-                            break
-                        except:
-                            pass
-                WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.TAG_NAME, 'body')))
-                my_bar.progress(70, text='조사한 자료 분석중..')
-                html=driver.page_source
-                soup=BeautifulSoup(html,'html.parser')
-                del html
-                temp_soup=soup.select_one('body').text
-                my_bar.progress(95, text='최종 자료를 기반한 답변 작성중..')
-                response_test = openai.ChatCompletion.create(
-          model="gpt-3.5-turbo-16k",
-          messages=[
-            {
-              "role": "system",
-              "content": "You are a helpful assistant."
-            },
-            {
-              "role": "user",
-              "content": f"""Find the answers in the resources I provide and answer my questions in Korean with correct grammar. Below are the questions and resources.
-              Question : {user_input}
-              
-              Resources : 
-              {temp_soup}"""
-            }
-          ],
-          temperature=1,
-          max_tokens=512,
-          top_p=1,
-          frequency_penalty=0,
-          presence_penalty=0
-        )
-                search_resp_fin=response_test['choices'][0]['message']['content']
-                if search_resp_fin:
-                    final_response=search_resp_fin+'\n\n[Reference]\n\n'+f"{driver.title}\n\n"+f"{driver.current_url}"
-                    driver.quit()
-                    my_bar.progress(100, text='답변 완료.')
-                else :
-                    final_response='좋은 답변으로 삼을만한 Reference를 찾지 못했습니다. 죄송합니다ㅠㅠ'
-                    driver.quit()
-                    my_bar.progress(100, text='답변 완료.')
-        return st.markdown(f'<p>{final_response}</p>',unsafe_allow_html=True)
-    # col1,col2,col3=st.columns([0.5,9,0.5])
-    # with col2:
-    st.title("더 궁금하신 것이 있으신가요?")
-    col1,col2=st.columns([8.75,1.25])
-    with col1:
-        if 'key' not in st.session_state:
-            st.session_state['key'] = 'value'
-        your_question_input = st.text_input("미술과 관련된 모든 궁금증과 질문들을  작성하신 후 엔터를 눌러주세요!")
-    with col2:
-        st.subheader('')
-        submitted = st.form_submit_button("Submit")
-    if submitted:
-        try:
-            st.session_state['key'] = 'value_1'
-            st.divider()
-            return_answer(your_question_input)
-        except:
-            st.empty()
-try:
-    if st.session_state['key'] == 'value_1':
-        user_feedback=st.radio('맘에 드시는 기능인가요?',['맘에 드셨다면 네, 싫으셨다면 아니오를 골라주세요.','네','아니오'])
-        if user_feedback=='네':
-            thank_you=st.write('사용해주셔서 감사합니다💕💕💕 다른 질문을 또 해주세요!')
-            time.sleep(3)
-            for key in st.session_state.keys():
-                del st.session_state[key]
+                    else :
+                        final_response='좋은 답변으로 삼을만한 Reference를 찾지 못했습니다. 죄송합니다ㅠㅠ'
+                        driver.quit()
+                        my_bar.progress(100, text='답변 완료.')
+            return st.markdown(f'<p>{final_response}</p>',unsafe_allow_html=True)
+        # col1,col2,col3=st.columns([0.5,9,0.5])
+        # with col2:
+        st.title("더 궁금하신 것이 있으신가요?")
+        col1,col2=st.columns([8.75,1.25])
+        with col1:
             if 'key' not in st.session_state:
                 st.session_state['key'] = 'value'
-        elif user_feedback=="아니오":
-            st.divider()
-            st.empty()
-            st.title('저희 팀에게 피드백을 주세요!')
-            st.markdown("""
-            **사용하시면서 불편하셨던 점에 대한 의견을 전부 적어서 저희들에게 알려주세요. 더 나은 서비스로 보답드릴 것을 약속드립니다 - KTA Team(`chohk4198@gmail.com`)**
-            """)
-            contact_form="""<form action="https://formsubmit.co/chohk4198@gmail.com" method="POST">
-                 <label for="message">Feedback</label><br>
-                 <textarea id="message" name="message" rows="10" cols="100" placeholder="여기에 메시지를 입력하세요."  required></textarea><br><br>
-                 <label for="email">email</label><br>
-                 <input type="email" name="email" size='81' required>
-                 <button type="submit">Send</button>
-            </form>"""
-            st.markdown(contact_form,unsafe_allow_html=True)
-        elif user_feedback=='맘에 드셨다면 네, 싫으셨다면 아니오를 골라주세요.': 
-            st.session_state['key'] == 'value_1'
-except:
-    st.empty()
+            your_question_input = st.text_input("미술과 관련된 모든 궁금증과 질문들을  작성하신 후 엔터를 눌러주세요!")
+        with col2:
+            st.subheader('')
+            submitted = st.form_submit_button("Submit")
+        if submitted:
+            try:
+                st.session_state['key'] = 'value_1'
+                st.divider()
+                return_answer(your_question_input)
+            except:
+                st.empty()
+    try:
+        if st.session_state['key'] == 'value_1':
+            user_feedback=st.radio('맘에 드시는 기능인가요?',['맘에 드셨다면 네, 싫으셨다면 아니오를 골라주세요.','네','아니오'])
+            if user_feedback=='네':
+                thank_you=st.write('사용해주셔서 감사합니다💕💕💕 다른 질문을 또 해주세요!')
+                time.sleep(3)
+                for key in st.session_state.keys():
+                    del st.session_state[key]
+                if 'key' not in st.session_state:
+                    st.session_state['key'] = 'value'
+            elif user_feedback=="아니오":
+                st.divider()
+                st.empty()
+                st.title('저희 팀에게 피드백을 주세요!')
+                st.markdown("""
+                **사용하시면서 불편하셨던 점에 대한 의견을 전부 적어서 저희들에게 알려주세요. 더 나은 서비스로 보답드릴 것을 약속드립니다 - KTA Team(`chohk4198@gmail.com`)**
+                """)
+                contact_form="""<form action="https://formsubmit.co/chohk4198@gmail.com" method="POST">
+                     <label for="message">Feedback</label><br>
+                     <textarea id="message" name="message" rows="10" cols="100" placeholder="여기에 메시지를 입력하세요."  required></textarea><br><br>
+                     <label for="email">email</label><br>
+                     <input type="email" name="email" size='81' required>
+                     <button type="submit">Send</button>
+                </form>"""
+                st.markdown(contact_form,unsafe_allow_html=True)
+            elif user_feedback=='맘에 드셨다면 네, 싫으셨다면 아니오를 골라주세요.': 
+                st.session_state['key'] == 'value_1'
+    except:
+        st.empty()
