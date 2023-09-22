@@ -260,7 +260,6 @@ elif selected == 'Know Thy Art':
                                 rescode = response.getcode()
                                 if(rescode==200):
                                     response_body = response.read()
-                                    time.sleep(1)
                                     with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                         temp.write(response_body)
                                         temp.seek(0)
