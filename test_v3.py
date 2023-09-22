@@ -117,8 +117,8 @@ return image
 st.image(load_image(), caption="", use_column_width=True)
 
 with st.sidebar:
-selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI','Speech to Art to Speech', '미술박사'], 
-    icons=['shop', 'palette','camera fill','puzzle','easel','lightbulb'], menu_icon="cast", default_index=0)
+selected = option_menu("Main Menu", ['Home', 'Know Thy Art','Neural Style Transfer','Artwork MBTI','Speech to Art to Speech', '미술박사'],
+                       icons=['shop', 'palette','camera fill','puzzle','easel','lightbulb'], menu_icon="cast", default_index=0)
 
 st.divider()
 
