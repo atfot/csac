@@ -588,7 +588,7 @@ elif selected=='Artwork MBTI':
     if __name__ == "__main__":
         main()
 
-if selected == 'Speech to Art to Speech':
+elif selected == 'Speech to Art to Speech':
 
 if 'load_state' not in st.session_state:
     st.session_state.load_state = False
