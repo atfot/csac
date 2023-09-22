@@ -45,3 +45,5 @@ gTTS
 #pickle
 #re
 streamlit-audiorec
+vext
+vext.gi
