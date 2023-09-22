@@ -84,20 +84,20 @@ mbti_data = None
 
 for url, suffix in urls:
     file_name = url.split('/')[-1]
-    with tempfile.NamedTemporaryFile(suffix=file_name, delete=True) as temp_file:
+    with tempfile.NamedTemporaryFile(suffix=file_name, delete=False) as temp_file:
         response = requests.get(url, stream=True)
         if response.status_code == 200:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     temp_file.write(chunk)
             if file_name == 'best_m.pt':
-                yolo_pt = YOLO(temp_file.name)
+                yolo_pt = temp_file.name
             elif file_name == 'styles_v9.csv':
                 style_csv = temp_file.name
             elif file_name == 'style_mbti_v2.csv':
                 mbti_data = temp_file.name
             elif file_name == 'model_resnetrs50_lion_dense10240.h5':
-                resnet_model = load_model(temp_file.name)
+                resnet_model = temp_file.name
             elif file_name == 'vgg16.h5':
                 vgg16_model = temp_file.name
             elif file_name == 'total.txt':
@@ -140,7 +140,7 @@ elif selected == 'Know Thy Art':
             if source_img:
                 uploaded_image = Image.open(source_img)
                 if uploaded_image:
-                    result = yolo_pt.predict(uploaded_image)
+                    result = YOLO(yolo_pt).predict(uploaded_image)
                     result_plot = result[0].plot()[:, :, ::-1]               
                     with st.spinner("Running...."):
                         try:
@@ -174,7 +174,7 @@ elif selected == 'Know Thy Art':
                                 uc_img=copy.deepcopy(uploaded_image)
                                 return uc_img
                             cropped_img=uncropped_img()
-                        m = resnet_model
+                        m = load_model(resnet_model)
                         x = img_to_array(cropped_img)
                         x = tf.image.resize(x, [224, 224])
                         x = np.array([x])
@@ -238,7 +238,7 @@ elif selected == 'Know Thy Art':
                                     temp.write(response_body)
                                     temp.seek(0)
                                     playsound(temp.name)
-                            df = style_csv
+                            df = pd.read_csv(style_csv)
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
                             matching_apps = matching_rows['app'].values
                             matching_exps = list(matching_rows['exp'].values)[0]
@@ -333,7 +333,7 @@ elif selected == 'Know Thy Art':
                                                        'silver', 'gray', 'darkgray', 'lightgray', 'gainsboro', 'lightslategray', 'slategray', 'whitesmoke', 'palevioletred', 'black']
                                         
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
-                                simcol_df = color_csv
+                                simcol_df = pd.read_csv(color_csv)
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
                                 group = selected_rows.iloc[0]['group']
                                 selected_rows = simcol_df[simcol_df['web_cg_dt'] == group]
@@ -399,7 +399,7 @@ elif selected == 'Know Thy Art':
                                 st.divider()
                                 st.subheader('')            
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
-                                m = vgg16_model
+                                m = load_model(vgg16_model)
                                 x = img_to_array(cropped_img)
                                 #x.shape
                                 x = tf.image.resize(x, [224, 224])
@@ -570,6 +570,7 @@ elif selected=='Artwork MBTI':
     
         images = [Image.open(image_folder + name) for name in image_names]
         conn = st.experimental_connection('gcs', type=FilesConnection)
+        mbti_data=pd.read_csv(mbti_data)
         sequential_matchup_game(images, image_folder, mbti_data)
     
     if __name__ == "__main__":
