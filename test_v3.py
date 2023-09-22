@@ -259,7 +259,6 @@ elif selected == 'Know Thy Art':
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                                 rescode = response.getcode()
                                 if(rescode==200):
-                                    time.sleep(3)
                                     response_body = response.read()
                                     with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                         temp.write(response_body)
