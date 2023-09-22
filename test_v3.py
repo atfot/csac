@@ -113,7 +113,7 @@ st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layo
 
 def load_image():
     image = "https://storage.googleapis.com/csac_final_v2/new/title.jpg"
-return image
+    return image
 st.image(load_image(), caption="", use_column_width=True)
 
 with st.sidebar:
