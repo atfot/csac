@@ -45,4 +45,4 @@ gTTS
 #pickle
 #re
 streamlit-audiorec
-gi
+PyGObject
