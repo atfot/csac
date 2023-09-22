@@ -39,7 +39,6 @@ from PIL import Image
 import streamlit as st
 import replicate
 from decouple import config
-from playsound import playsound
 from gtts import gTTS
 import time
 from numpy import dot
@@ -237,7 +236,10 @@ elif selected == 'Know Thy Art':
                                 with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                     temp.write(response_body)
                                     temp.seek(0)
-                                    playsound(temp.name)
+                                    audio_bytes = audio_file.read()
+                                    base64_bytes = base64.b64encode(audio_bytes)
+                                    base64_string = base64_bytes.decode()
+                                    st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)                         
                             df = pd.read_csv(style_csv)
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
                             matching_apps = matching_rows['app'].values
@@ -258,7 +260,10 @@ elif selected == 'Know Thy Art':
                                     with tempfile.TemporaryFile(suffix=".mp3") as temp:
                                         temp.write(response_body)
                                         temp.seek(0)
-                                        playsound(temp.name)                            
+                                        audio_bytes = audio_file.read()
+                                        base64_bytes = base64.b64encode(audio_bytes)
+                                        base64_string = base64_bytes.decode()
+                                        st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)                         
                             else:
                                 st.subheader("No related apps found for the predicted art style.")
                                 
@@ -599,7 +604,10 @@ if selected == 'Speech to Art to Speech':
          with tempfile.TemporaryFile(suffix=".mp3") as temp:
             temp.write(tts)
             temp.seek(0)
-            playsound(temp.name)
+            audio_bytes = audio_file.read()
+            base64_bytes = base64.b64encode(audio_bytes)
+            base64_string = base64_bytes.decode()
+            st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)
     
     @st.cache_resource
     def generate_image(img_description):
@@ -658,7 +666,11 @@ if selected == 'Speech to Art to Speech':
             with tempfile.TemporaryFile(suffix=".mp3") as temp:
                 temp.write(response_body)
                 temp.seek(0)
-                playsound(temp.name)
+                audio_file = open(temp.name, 'rb')
+                audio_bytes = audio_file.read()
+                base64_bytes = base64.b64encode(audio_bytes)
+                base64_string = base64_bytes.decode()
+                st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)
     
     with tab1 :
     
