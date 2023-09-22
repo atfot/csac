@@ -35,6 +35,7 @@ from st_audiorec import st_audiorec
 import speech_recognition as SR
 import deepl 
 import openai
+import base64
 from PIL import Image
 import streamlit as st
 import replicate
