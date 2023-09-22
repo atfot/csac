@@ -234,7 +234,7 @@ elif selected == 'Know Thy Art':
                             rescode = response.getcode()
                             if(rescode==200):
                                 response_body = response.read()
-                                with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                                with tempfile.TemporaryFile(suffix=".mp3",delete=True) as temp:
                                     temp.write(response_body)
                                     temp.seek(0)
                                     audio_file = open(temp.name, 'rb')
@@ -259,7 +259,7 @@ elif selected == 'Know Thy Art':
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                                 rescode = response.getcode()
                                 if(rescode==200):
-                                    with tempfile.TemporaryFile(suffix=".mp3") as temp:
+                                    with tempfile.TemporaryFile(suffix=".mp3",delete=True) as temp:
                                         temp.write(response_body)
                                         temp.seek(0)
                                         audio_file = open(temp.name, 'rb')
@@ -604,7 +604,7 @@ if selected == 'Speech to Art to Speech':
     
     def speak(text):
          tts = gTTS(text=text, lang='ko', slow=False)
-         with tempfile.TemporaryFile(suffix=".mp3") as temp:
+         with tempfile.TemporaryFile(suffix=".mp3",delete=True) as temp:
             temp.write(tts)
             temp.seek(0)
             audio_file = open(temp.name, 'rb')
@@ -667,7 +667,7 @@ if selected == 'Speech to Art to Speech':
         rescode = response.getcode()
         if(rescode==200):
             response_body = response.read()
-            with tempfile.TemporaryFile(suffix=".mp3") as temp:
+            with tempfile.TemporaryFile(suffix=".mp3",delete=True) as temp:
                 temp.write(response_body)
                 temp.seek(0)
                 audio_file = open(temp.name, 'rb')
