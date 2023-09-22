@@ -82,18 +82,15 @@ color_csv = None
 vgg16_model = None
 mbti_data = None
 
-os.makedirs('D:/datas', exist_ok=True)
-
 for url, suffix in urls:
-    file_name = url.split('/')[-1]
-    file_path = os.path.join('D:/datas', file_name)
-    
-    response = requests.get(url, stream=True)
-    if response.status_code == 200:
-        with open(file_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=512):
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+        if os.path.exists(temp_file.name):
+            os.remove(temp_file.name)
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            for chunk in response.iter_content(chunk_size=256):
                 if chunk:
-                    f.write(chunk)
+                    temp_file.write(chunk)
             if file_name == 'best_m.pt':
                 yolo_pt = temp_file.name
             elif file_name == 'styles_v9.csv':
