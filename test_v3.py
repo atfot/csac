@@ -87,7 +87,7 @@ for url, suffix in urls:
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         response = requests.get(url, stream=True)
         if response.status_code == 200:
-            for chunk in response.iter_content(chunk_size=256):
+            for chunk in response.iter_content(chunk_size=512):
                 if chunk:
                     temp_file.write(chunk)
             if file_name == 'best_m.pt':
