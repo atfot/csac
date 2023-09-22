@@ -251,7 +251,7 @@ elif selected == 'Know Thy Art':
                             if len(matching_apps) > 0:
                                 for app in matching_apps:
                                     col2.markdown(app,unsafe_allow_html=True)                                
-                                encText = urllib.parse.quote(matching_apps)
+                                encText = urllib.parse.quote(matching_exps)
                                 data = st.secrets['clova_data'] + encText;
                                 request = urllib.request.Request(st.secrets['clova_url'])
                                 request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
