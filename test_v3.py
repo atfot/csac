@@ -112,7 +112,7 @@ for url, suffix in urls:
 st.set_page_config(page_title="KTA by ColdShower team", page_icon="random", layout="wide")
 
 def load_image():
-image = "https://storage.googleapis.com/csac_final_v2/new/title.jpg"
+    image = "https://storage.googleapis.com/csac_final_v2/new/title.jpg"
 return image
 st.image(load_image(), caption="", use_column_width=True)
 
