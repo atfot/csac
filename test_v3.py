@@ -83,6 +83,7 @@ vgg16_model = None
 mbti_data = None
 
 for url, suffix in urls:
+    file_name = url.split('/')[-1]
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
         if os.path.exists(temp_file.name):
             os.remove(temp_file.name)
