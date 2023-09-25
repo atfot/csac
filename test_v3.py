@@ -362,7 +362,7 @@ elif selected == 'Know Thy Art':
                                             def image_read(arg):
                                                 with urllib.request.urlopen(arg) as url:
                                                     s=url.read()
-                                                img=plt.imread(s)
+                                                img=imread(s)
                                                 return img
                                             image = image_read(file_path)
                                             plt.subplot(3, 3, i + 1)
