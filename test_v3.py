@@ -324,25 +324,24 @@ elif selected == 'Know Thy Art':
                                         
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
                                 simcol_df = pd.read_csv(color_csv)
-                                st.write(type(simcol_df))
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
                                 group = selected_rows.iloc[0]['group']
                                 selected_rows = simcol_df[simcol_df['web_cg_dt'] == group]
                                 random_sample = selected_rows.sample(n=9)
                                 file_names = random_sample['file_name'].tolist()
                             
-                                folder_paths = ["gs://csac_final_v2/new/abstract_expressionism_img",
-                                                        "gs://csac_final_v2/new/nap_img",
-                                                        "gs://csac_final_v2/new/symbolism_img",
-                                                        "gs://csac_final_v2/new/rc_img",
-                                                        "gs://csac_final_v2/new/cu_img",
-                                                        "gs://csac_final_v2/new/bq_img",
-                                                        "gs://csac_final_v2/new/northern_renaissance_img",
-                                                        "gs://csac_final_v2/new/impressionism_img",
-                                                        "gs://csac_final_v2/new/romanticism_img",
-                                                        "gs://csac_final_v2/new/sr_img",
-                                                        "gs://csac_final_v2/new/expressionism_img",
-                                                        "gs://csac_final_v2/new/realism_img"]
+                                folder_paths = ["https://storage.googleapis.com/csac_final_v2/new/abstract_expressionism_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/nap_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/symbolism_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/rc_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/cu_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/bq_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/northern_renaissance_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/impressionism_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/romanticism_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/sr_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/expressionism_img",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/realism_img"]
                                         
                                 files = ['abstract_expressionism_', 'nap_', 'symbolism_', 'rc_', 'cu_', 'bq_', 'orthern_renaissance',
                                                       'impressionism_', 'romanticism_', 'sr_', 'expressionism_', 'realism_']
@@ -361,14 +360,10 @@ elif selected == 'Know Thy Art':
                                             file_path = get_style_filename(prefix, number)
                                             @st.cache_data
                                             def image_read(arg):
-                                                client = storage.Client()
-                                                bucket = client.get_bucket(st.secrets['my_bucket'])
-                                                blob = bucket.blob(st.secrets['bucket_path']+arg)
-                                                image_bytes = blob.download_as_bytes()
-                                                image = Image.open(BytesIO(image_bytes))
-                                                arr = np.frombuffer(image_bytes, np.uint8)
-                                                result = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-                                                return result
+                                                with urllib.request.urlopen(arg) as url:
+                                                    s=url.read()
+                                                img=plt.imread(s)
+                                                return img
                                             image = image_read(file_path)
                                             plt.subplot(3, 3, i + 1)
                                             plt.imshow(image)
