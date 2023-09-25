@@ -222,26 +222,7 @@ elif selected == 'Know Thy Art':
                             st.markdown("<h3 style='text-align: center; color: black;'>와 가장 비슷합니다.<br></h3>", unsafe_allow_html=True)
                             st.title('')
                             
-                            sajo = korean_class_indices[top_prediction_index]
-                            
-                            
-                            encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다.")
-                            data = st.secrets['clova_data'] + encText;
-                            request = urllib.request.Request(st.secrets['clova_url'])
-                            request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
-                            request.add_header("X-NCP-APIGW-API-KEY",st.secrets['clova_secret'])
-                            response = urllib.request.urlopen(request, data=data.encode('utf-8'))
-                            rescode = response.getcode()
-                            if(rescode==200):
-                                response_body = response.read()
-                                with tempfile.TemporaryFile(suffix=".mp3") as temp:
-                                    temp.write(response_body)
-                                    temp.seek(0)
-                                    audio_file = open(temp.name, 'rb')
-                                    audio_bytes = audio_file.read()
-                                    base64_bytes = base64.b64encode(audio_bytes)
-                                    base64_string = base64_bytes.decode()
-                                    st.markdown(f'<audio autoplay controls><source src="data:audio/mp3;base64,{base64_string}"></audio>', unsafe_allow_html=True)                         
+                            sajo = korean_class_indices[top_prediction_index]                         
                             df = pd.read_csv(style_csv)
                             matching_rows = df[df['style'] == class_indices[top_prediction_index]]                                
                             matching_apps = matching_rows['app'].values
@@ -251,7 +232,7 @@ elif selected == 'Know Thy Art':
                             if len(matching_apps) > 0:
                                 for app in matching_apps:
                                     col2.markdown(app,unsafe_allow_html=True)                                
-                                encText = urllib.parse.quote(matching_exps)
+                                encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다."+matching_exps)
                                 data = st.secrets['clova_data'] + encText;
                                 request = urllib.request.Request(st.secrets['clova_url'])
                                 request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
