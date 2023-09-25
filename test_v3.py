@@ -360,9 +360,7 @@ elif selected == 'Know Thy Art':
                                             file_path = get_style_filename(prefix, number)
                                             @st.cache_data
                                             def image_read(arg):
-                                                with urllib.request.urlopen(arg) as url:
-                                                    s=url.read()
-                                                img=imread(s)
+                                                img=imread(arg)
                                                 return img
                                             image = image_read(file_path)
                                             plt.subplot(3, 3, i + 1)
