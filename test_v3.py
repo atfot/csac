@@ -324,6 +324,7 @@ elif selected == 'Know Thy Art':
                                         
                                 closest_color, closest_color_index = find_closest_color(rgb_color, color_names)
                                 simcol_df = pd.read_csv(color_csv)
+                                st.write(type(simcol_df))
                                 selected_rows = simcol_df[simcol_df['rep_clr'] == closest_color]
                                 group = selected_rows.iloc[0]['group']
                                 selected_rows = simcol_df[simcol_df['web_cg_dt'] == group]
