@@ -364,7 +364,7 @@ elif selected == 'Know Thy Art':
                                         if num.startswith(prefix):
                                             number = num[len(prefix):]
                                             file_path = get_style_filename(prefix, number)
-                                            image = imread(file_path)
+                                            image = Image.open(file_path)
                                             plt.subplot(3, 3, i + 1)
                                             plt.imshow(image)
                                             plt.axis('off')
@@ -404,7 +404,7 @@ elif selected == 'Know Thy Art':
                                 plt.figure(figsize=(10, 10))
                                 i = 1                                    
                                 for idx, url in enumerate(top_9['url']):
-                                    image = imread(url)
+                                    image = Image.open(url)
                                     plt.subplot(3, 3, i)
                                     plt.imshow(image)
                                     plt.axis('off')
