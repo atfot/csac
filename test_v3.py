@@ -330,18 +330,18 @@ elif selected == 'Know Thy Art':
                                 random_sample = selected_rows.sample(n=9)
                                 file_names = random_sample['file_name'].tolist()
                             
-                                folder_paths = ["https://storage.googleapis.com/csac_final_v2/new/abstract_expressionism_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/nap_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/symbolism_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/rc_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/cu_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/bq_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/northern_renaissance_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/impressionism_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/romanticism_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/sr_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/expressionism_img",
-                                                        "https://storage.googleapis.com/csac_final_v2/new/realism_img"]
+                                folder_paths = ["https://storage.googleapis.com/csac_final_v2/new/abstract_expressionism_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/nap_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/symbolism_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/rc_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/cu_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/bq_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/northern_renaissance_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/impressionism_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/romanticism_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/sr_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/expressionism_img/",
+                                                        "https://storage.googleapis.com/csac_final_v2/new/realism_img/"]
                                         
                                 files = ['abstract_expressionism_', 'nap_', 'symbolism_', 'rc_', 'cu_', 'bq_', 'orthern_renaissance',
                                                       'impressionism_', 'romanticism_', 'sr_', 'expressionism_', 'realism_']
@@ -349,7 +349,7 @@ elif selected == 'Know Thy Art':
                                     idx = files.index(prefix)
                                     folder_path = folder_paths[idx]
                                     filename = f'{prefix}{number}.jpg'
-                                    file_path = os.path.join(folder_path, filename)
+                                    file_path = folder_path+filename
                                     return file_path
                                 numbers = file_names
                                 plt.figure(figsize=(10, 10))
