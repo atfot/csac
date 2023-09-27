@@ -240,10 +240,10 @@ elif selected == 'Know Thy Art':
                                 for app in matching_apps:
                                     col2.markdown(app,unsafe_allow_html=True)                                
                                 encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다."+matching_exps)
-                                data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
-                                request = urllib.request.Request("https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts")
-                                request.add_header("X-NCP-APIGW-API-KEY-ID","l54bwt1v2b")
-                                request.add_header("X-NCP-APIGW-API-KEY","MhX1adev8KDitOw36VMj8FdsqrcsuSLCdfiZlw8x")
+                                data = st.secrets('clova_data') + encText;
+                                request = urllib.request.Request(st.secrets('clova_url'))
+                                request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets('clova_id'))
+                                request.add_header("X-NCP-APIGW-API-KEY",st.secrets('clova_secrets'))
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                                 rescode = response.getcode()
                                 if(rescode==200):
