@@ -242,8 +242,8 @@ elif selected == 'Know Thy Art':
                                 encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다."+matching_exps)
                                 data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
                                 request = urllib.request.Request("https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts")
-                                request.add_header("X-NCP-APIGW-API-KEY-ID","l9maed2fj4")
-                                request.add_header("X-NCP-APIGW-API-KEY","A6g38ZJkOwQiV5c4hj3ycZyzjEg9QtavPnqoCaFX")
+                                request.add_header("X-NCP-APIGW-API-KEY-ID","l54bwt1v2b")
+                                request.add_header("X-NCP-APIGW-API-KEY","MhX1adev8KDitOw36VMj8FdsqrcsuSLCdfiZlw8x")
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                                 rescode = response.getcode()
                                 if(rescode==200):
