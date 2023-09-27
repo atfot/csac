@@ -241,6 +241,7 @@ elif selected == 'Know Thy Art':
                                 encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다."+matching_exps)
                                 data = st.secrets['clova_data'] + encText;
                                 request = urllib.request.Request(st.secrets['clova_url'])
+                                st.write(st.secrets['clova_url'])
                                 request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
                                 request.add_header("X-NCP-APIGW-API-KEY",st.secrets['clova_secret'])
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
