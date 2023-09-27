@@ -356,7 +356,7 @@ elif selected == 'Know Thy Art':
                                     idx = files.index(prefix)
                                     folder_path = folder_paths[idx]
                                     filename = f'{prefix}{number}.jpg'
-                                    file_path = folder_path+filename
+                                    file_path = folder_path + filename
                                     return file_path
                                 numbers = file_names
                                 plt.figure(figsize=(10, 10))
