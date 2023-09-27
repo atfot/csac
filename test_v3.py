@@ -226,6 +226,7 @@ elif selected == 'Know Thy Art':
                             st.markdown("<h3 style='text-align: center; color: black;'>❣️ 해당 그림의 사조는<br></h3>", unsafe_allow_html=True)
                             st.markdown(f"<h2 style='text-align: center; color: #161953;'>{korean_class_indices[top_prediction_index]}<br></h2>", unsafe_allow_html=True)
                             st.markdown("<h3 style='text-align: center; color: black;'>와 가장 비슷합니다.<br></h3>", unsafe_allow_html=True)
+                            st.write(st.secrets['clova_url'])
                             st.title('')
                             
                             sajo = korean_class_indices[top_prediction_index]                         
