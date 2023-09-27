@@ -222,7 +222,6 @@ elif selected == 'Know Thy Art':
                             st.pyplot(fig)  
                         with col2:
                             st.title('')
-                            st.write(st.secrets['clova_url'])
                             st.title('')
                             st.markdown("<h3 style='text-align: center; color: black;'>❣️ 해당 그림의 사조는<br></h3>", unsafe_allow_html=True)
                             st.markdown(f"<h2 style='text-align: center; color: #161953;'>{korean_class_indices[top_prediction_index]}<br></h2>", unsafe_allow_html=True)
@@ -241,11 +240,10 @@ elif selected == 'Know Thy Art':
                                 for app in matching_apps:
                                     col2.markdown(app,unsafe_allow_html=True)                                
                                 encText = urllib.parse.quote("해당 그림의 사조는" + sajo + "와 가장 비슷합니다."+matching_exps)
-                                data = st.secrets['clova_data'] + encText;
-                                request = urllib.request.Request(st.secrets['clova_url'])
-                                st.write(st.secrets['clova_url'])
-                                request.add_header("X-NCP-APIGW-API-KEY-ID",st.secrets['clova_id'])
-                                request.add_header("X-NCP-APIGW-API-KEY",st.secrets['clova_secret'])
+                                data = "speaker=nara&volume=0&speed=0&pitch=0&format=mp3&text=" + encText;
+                                request = urllib.request.Request("https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts")
+                                request.add_header("X-NCP-APIGW-API-KEY-ID","l9maed2fj4")
+                                request.add_header("X-NCP-APIGW-API-KEY","A6g38ZJkOwQiV5c4hj3ycZyzjEg9QtavPnqoCaFX")
                                 response = urllib.request.urlopen(request, data=data.encode('utf-8'))
                                 rescode = response.getcode()
                                 if(rescode==200):
