@@ -398,7 +398,6 @@ elif selected == 'Know Thy Art':
                                 for i in index_predict:
                                     similarities.append(cosine_similarity(predict, i))                                            
                                 x = np.array(similarities).reshape(-1,)                                            
-                                # 가장 유사한 이미지 9개
                                 top_9 = total.iloc[np.argsort(x)[::-1][:9]].reset_index(drop=True)                                            
                                 top_9['url'] = top_9['url'].apply(lambda x: 'gs://csac_final_v2/new/paintings/' + x)                                    
                                 plt.figure(figsize=(10, 10))
@@ -427,8 +426,8 @@ elif selected == 'Know Thy Art':
                 else:
                     st.subheader('You didnt upload your image')
             else:
-                st.write("Please upload an image")
-                
+                st.write("Please upload an image")               
+
 elif selected=='Neural Style Transfer':
     st.title('Neural Style Transfer')
     st.header('')
@@ -551,9 +550,8 @@ elif selected=='Artwork MBTI':
     
     def main():
         st.title("Mini Game - 미술사조 mbti test :heart:")
-        image_folder = "gs://csac_final_v2/new/mbti/"  # 이미지 폴더 경로
-        image_names = [f"img_{i}.jpg" for i in range(1, 13)]  # 이미지 파일명 리스트
-    
+        image_folder = "gs://csac_final_v2/new/mbti/"
+        image_names = [f"img_{i}.jpg" for i in range(1, 13)]
         images = [Image.open(image_folder + name) for name in image_names]
         conn = st.experimental_connection('gcs', type=FilesConnection)
         mbti_data=pd.read_csv(mbti_data)
@@ -840,7 +838,6 @@ elif selected == '미술박사':
         OP.add_argument("--test-type")
         OP.add_argument('--no-sandbox')
         OP.add_argument('--disable-gpu')
-        #OP.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
         OP.add_argument('--profile-directory=Default')
         OP.add_argument('--user-data-dir=C:/Temp/ChromeProfile')
         
@@ -874,14 +871,12 @@ elif selected == '미술박사':
         
         def return_answer(user_input):
             if user_input:
-                #user_input='바로크 미술의 대표 화가들을 가르쳐줘.'
                 try:
                     my_bar=st.progress(0, text='질문 내용 분석중...')
                     pre_prompt_1=f'''If the question below is about art, return 0, otherwise return 1.
         
                     "{user_input}" 
                     '''
-                    #사조,특징,화가,작품,시대적 배경
                     response = completion_with_backoff(
                       model="text-davinci-003",
                       prompt=pre_prompt_1,
@@ -1132,8 +1127,6 @@ elif selected == '미술박사':
                         driver.quit()
                         my_bar.progress(100, text='답변 완료.')
             return st.markdown(f'<p>{final_response}</p>',unsafe_allow_html=True)
-        # col1,col2,col3=st.columns([0.5,9,0.5])
-        # with col2:
         st.title("더 궁금하신 것이 있으신가요?")
         col1,col2=st.columns([8.75,1.25])
         with col1:
