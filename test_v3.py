@@ -186,7 +186,7 @@ elif selected == 'Know Thy Art':
                         x = np.array([x])
                         x = preprocess_input(x)                
                         predict = m.predict(x)                       
-                        class_indices = {0: 'Abstract Expressionism', 1: 'Baroque', 2: 'Cubism', 3: 'Impressionism',4 : 'Primitivism',5:'Rococo',6:'Surrealism'}  # Replace with the correct class indices and labels.
+                        class_indices = {0: 'Abstract Expressionism', 1: 'Baroque', 2: 'Cubism', 3: 'Impressionism',4 : 'Primitivism',5:'Rococo',6:'Surrealism'}  
                         korean_class_indices={0:'추상표현주의 (Abstract Expressionism)',
                                               1:'바로크 (Baroque)',
                                               2:'입체주의 (Cubism)',
@@ -302,7 +302,7 @@ elif selected == 'Know Thy Art':
                                 st.subheader('')
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar colors</h2>", unsafe_allow_html=True)
                                 st.subheader('')
-                                def rgb_distance(rgb1, rgb2): # 유클리드 거리 공식
+                                def rgb_distance(rgb1, rgb2): 
                                     r1, g1, b1 = rgb1
                                     r2, g2, b2 = rgb2
                                     return ((r2 - r1) ** 2 + (g2 - g1) ** 2 + (b2 - b1) ** 2) ** 0.5
@@ -387,7 +387,7 @@ elif selected == 'Know Thy Art':
                                 st.markdown("<h2 style='text-align: center; color: black;'>Artworks with similiar styles</h2>", unsafe_allow_html=True)
                                 m = load_model(vgg16_model)
                                 x = img_to_array(cropped_img)
-                                #x.shape
+    
                                 x = tf.image.resize(x, [224, 224])
                                 x = np.array([x])
                                 predict = m.predict(pinp(x))
@@ -469,8 +469,8 @@ elif selected=='Neural Style Transfer':
                     stylize_model = ais()
             
                     results = stylize_model(tf.constant(original_image), tf.constant(style_image))
-                    stylized_photo = results[0].numpy().squeeze()  # Convert to NumPy array and squeeze dimensions
-                    stylized_photo_pil = PIL.Image.fromarray(np.uint8(stylized_photo * 255))  # Convert to PIL image and rescale to [0, 255]
+                    stylized_photo = results[0].numpy().squeeze()
+                    stylized_photo_pil = PIL.Image.fromarray(np.uint8(stylized_photo * 255)) 
     st.header('')
     col1,col2,col3 = st.columns(3)
     if button :
@@ -629,8 +629,8 @@ elif selected == 'Speech to Art to Speech':
     
     def naver_clover_tts(text) :
         
-        client_id = st.secrets['clova_id_2'] # Ryan Koo
-        client_secret = st.secrets['clova_secrets_2'] # Ryan Koo
+        client_id = st.secrets['clova_id_2']
+        client_secret = st.secrets['clova_secrets_2']
         
         encText = urllib.parse.quote(text)
         data = st.secrets['clova_data'] + encText;
@@ -821,7 +821,6 @@ elif selected == '미술박사':
                 "credentials_enable_service": False,
                 "profile.password_manager_enabled": False,
                 "profile.default_content_setting_values.notifications": 2           
-                # with 2 should disable notifications
             },
         )
         OP.add_argument('--disable-notifications') 
